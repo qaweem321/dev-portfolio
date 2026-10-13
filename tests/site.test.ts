@@ -67,6 +67,19 @@ describe("the built page", () => {
     for (const target of targets) expect(ids.has(target), `#${target}`).toBe(true);
   });
 
+  test("no link leads to a placeholder page", () => {
+    const links = all(/href="(https?:[^"]+)"/g);
+    expect(links.length).toBeGreaterThan(0);
+    for (const link of links) {
+      expect(link, link).not.toMatch(/^https?:\/\/(www\.)?example\.(com|org|net)\b/);
+      expect(link, link).not.toMatch(/^https:\/\/github\.com\/?$/);
+    }
+  });
+
+  test("Get in touch goes to the contact section (an email link alone does nothing without a mail app)", () => {
+    expect(html).toMatch(/<a class="button primary" href="#contact"[^>]*>Get in touch<\/a>/);
+  });
+
   test("ids are unique", () => {
     const ids = all(/\sid="([^"]+)"/g);
     expect(new Set(ids).size).toBe(ids.length);

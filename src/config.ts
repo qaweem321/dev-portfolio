@@ -34,12 +34,11 @@ const config: PortfolioInput = {
     email: "alex.morgan@example.com",
   },
 
-  // `icon` is a Simple Icons slug (https://simpleicons.org). Unknown icons get a generic link icon.
+  // `icon` is a Simple Icons slug (https://simpleicons.org), such as "github", "mastodon" or "rss".
+  // Unknown icons get a generic link icon. Use your own profile addresses here.
   socials: [
-    { label: "GitHub", url: "https://github.com/", icon: "github" },
+    { label: "GitHub", url: "https://github.com/qaweem321/dev-portfolio", icon: "github" },
     { label: "LinkedIn", url: "https://www.linkedin.com/", icon: "linkedin" },
-    { label: "Mastodon", url: "https://mastodon.social/", icon: "mastodon" },
-    { label: "Blog", url: "https://example.com/blog", icon: "rss" },
   ],
 
   skills: [
@@ -49,14 +48,13 @@ const config: PortfolioInput = {
     { group: "Tooling", items: ["Docker", "GitHub Actions", "AWS", "Vitest", "Playwright"] },
   ],
 
+  // Each project can also link out: url: "https://..." (live site) and repo: "https://..." (source).
   projects: [
     {
       title: "Tidewatch",
       description:
         "Live dashboard for 400 ocean buoys. Streams readings over WebSockets and renders 60 fps charts on a five-year-old phone.",
       tags: ["React", "WebSockets", "PostgreSQL"],
-      url: "https://example.com/tidewatch",
-      repo: "https://github.com/",
       year: 2026,
       featured: true,
     },
@@ -65,7 +63,6 @@ const config: PortfolioInput = {
       description:
         "Double-entry bookkeeping API with idempotent writes and an audit trail. Reconciles 2 million transactions a night.",
       tags: ["Node.js", "PostgreSQL", "API"],
-      repo: "https://github.com/",
       year: 2025,
       featured: true,
     },
@@ -74,7 +71,6 @@ const config: PortfolioInput = {
       description:
         "Offline-first trip planner. Works on a plane, syncs when you land, and never loses an edit.",
       tags: ["React", "PWA", "IndexedDB"],
-      url: "https://example.com/pocket-planner",
       year: 2025,
       featured: true,
     },
@@ -83,21 +79,18 @@ const config: PortfolioInput = {
       description:
         "Accessible React component library: 40 components, keyboard support and screen-reader tests for every one.",
       tags: ["React", "Accessibility", "TypeScript"],
-      repo: "https://github.com/",
       year: 2024,
     },
     {
       title: "Shiplog",
       description: "CLI that turns merged pull requests into a readable changelog, grouped by what users notice.",
       tags: ["Node.js", "CLI", "GitHub API"],
-      repo: "https://github.com/",
       year: 2024,
     },
     {
       title: "Quietly",
       description: "Browser extension that hides feeds and badges during focus hours. 12,000 weekly users.",
       tags: ["TypeScript", "Browser extension"],
-      url: "https://example.com/quietly",
       year: 2023,
     },
   ],

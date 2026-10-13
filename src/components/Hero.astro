@@ -33,7 +33,7 @@ const avatar =
       <p class="tagline">{person.tagline}</p>
       {person.location && <p class="location">{person.location}</p>}
       <div class="actions no-print">
-        {person.email && <a class="button primary" href={`mailto:${person.email}`}>Get in touch</a>}
+        {(person.email || socials.length > 0) && <a class="button primary" href="#contact">Get in touch</a>}
         {
           person.resumeUrl ? (
             <a class="button" href={person.resumeUrl}>Résumé</a>
