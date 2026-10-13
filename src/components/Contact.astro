@@ -1,0 +1,114 @@
+---
+import { iconPath } from "../lib/icons";
+import type { Portfolio } from "../lib/schema";
+import Icon from "./Icon.astro";
+import Section from "./Section.astro";
+
+interface Props {
+  portfolio: Portfolio;
+  index: number;
+}
+
+const { portfolio, index } = Astro.props;
+const { person, socials } = portfolio;
+const firstName = person.name.split(/\s+/)[0];
+---
+
+<Section id="contact" index={index} title="Contact" print={false}>
+  <div class="contact card">
+    <div>
+      <p class="lead">Have a role, a project or a question? I reply within two working days.</p>
+      {
+        person.email && (
+          <div class="email-row">
+            <a class="button primary" href={`mailto:${person.email}`}>
+              Email {firstName}
+            </a>
+            <button class="button copy needs-js" type="button" data-email={person.email}>
+              Copy address
+            </button>
+            <span class="copied" aria-live="polite" />
+          </div>
+        )
+      }
+    </div>
+    <ul class="list">
+      {
+        socials.map((social) => (
+          <li>
+            <a href={social.url} rel="me noopener">
+              <Icon path={iconPath(social.icon)} size={18} />
+              {social.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Section>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>(".copy");
+  const status = document.querySelector<HTMLElement>(".copied");
+  button?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(button.dataset.email ?? "");
+      if (status) status.textContent = "Copied!";
+    } catch {
+      if (status) status.textContent = button.dataset.email ?? "";
+    }
+    setTimeout(() => status && (status.textContent = ""), 2500);
+  });
+</script>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 2rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    background: linear-gradient(140deg, var(--accent-soft), var(--surface) 60%);
+  }
+  .lead {
+    font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    max-width: 28rem;
+  }
+  .email-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .copied {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .list {
+    display: grid;
+    gap: 0.25rem;
+    list-style: none;
+    align-content: center;
+  }
+  .list a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    color: var(--text);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .list a:hover {
+    background: var(--surface);
+    color: var(--accent-text);
+  }
+  @media (max-width: 760px) {
+    .contact {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,184 @@
+---
+import type { Portfolio } from "../lib/schema";
+import ThemeToggle from "./ThemeToggle.astro";
+
+interface Props {
+  portfolio: Portfolio;
+  links: { href: string; label: string }[];
+}
+
+const { portfolio, links } = Astro.props;
+const notice = portfolio.site.templateNotice;
+const initials = portfolio.person.name
+  .split(/\s+/)
+  .map((part) => part[0])
+  .slice(0, 2)
+  .join("")
+  .toUpperCase();
+---
+
+{
+  notice && (
+    <div class="notice no-print">
+      <p class="container">
+        {notice.text} <a href={notice.url}>{notice.linkLabel} →</a>
+      </p>
+    </div>
+  )
+}
+<header class="header no-print">
+  <div class="container bar">
+    <a class="brand" href="#top" aria-label={`${portfolio.person.name}, back to top`}>
+      <span class="monogram" aria-hidden="true">{initials}</span>
+      <span class="brand-name">{portfolio.person.name}</span>
+    </a>
+    <nav aria-label="Sections">
+      <button class="icon-button menu-button" type="button" aria-expanded="false" aria-controls="section-links" aria-label="Menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+      </button>
+      <ul class="links" id="section-links">
+        {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+      </ul>
+    </nav>
+    <ThemeToggle />
+  </div>
+</header>
+
+<script>
+  // Phone-width menu. Without JavaScript the links simply show in a row (see the .js rules).
+  const button = document.querySelector<HTMLButtonElement>(".menu-button");
+  const list = document.querySelector<HTMLElement>("#section-links");
+  const setOpen = (open: boolean) => {
+    button?.setAttribute("aria-expanded", String(open));
+    list?.classList.toggle("open", open);
+  };
+  button?.addEventListener("click", () => setOpen(button.getAttribute("aria-expanded") !== "true"));
+  list?.addEventListener("click", (event) => {
+    if ((event.target as HTMLElement).closest("a")) setOpen(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && button?.getAttribute("aria-expanded") === "true") {
+      setOpen(false);
+      button.focus();
+    }
+  });
+  document.addEventListener("click", (event) => {
+    if (!(event.target as HTMLElement).closest("nav")) setOpen(false);
+  });
+</script>
+
+<style>
+  .notice {
+    background: var(--accent);
+    color: white;
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 0.5rem 0;
+  }
+  .notice a {
+    color: white;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in oklab, var(--bg) 82%, transparent);
+    backdrop-filter: saturate(1.4) blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 4rem;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 700;
+    margin-right: auto;
+  }
+  .monogram {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+  }
+  nav {
+    display: flex;
+    align-items: center;
+  }
+  .links {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+  }
+  .links a {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999px;
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+  .links a:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+  .menu-button {
+    display: none;
+  }
+  .menu-button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+  }
+  @media (max-width: 760px) {
+    nav {
+      position: relative;
+    }
+    .links {
+      flex-wrap: wrap;
+    }
+    :global(.js) .menu-button {
+      display: inline-grid;
+    }
+    :global(.js) .links {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 0.5rem);
+      flex-direction: column;
+      min-width: 12rem;
+      padding: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    :global(.js) .links.open {
+      display: flex;
+    }
+    :global(.js) .links a {
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      color: var(--text);
+    }
+  }
+  @media (max-width: 340px) {
+    .brand-name {
+      display: none;
+    }
+  }
+</style>

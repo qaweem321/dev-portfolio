@@ -1,0 +1,277 @@
+/* Design tokens. --accent comes from src/config.ts; everything else derives from it. */
+:root {
+  color-scheme: light;
+  --bg: #fbfbfd;
+  --surface: #ffffff;
+  --surface-2: #f3f3f7;
+  --text: #16161d;
+  --muted: #5b5b6b;
+  --border: #e4e4ec;
+  --accent-text: color-mix(in oklab, var(--accent) 82%, black);
+  --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+  --ok: #16a34a;
+  --shadow: 0 1px 2px rgb(16 16 24 / 0.04), 0 8px 24px rgb(16 16 24 / 0.06);
+  --radius: 14px;
+  --max: 68rem;
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d0d12;
+  --surface: #15151c;
+  --surface-2: #1c1c25;
+  --text: #ececf3;
+  --muted: #a2a2b5;
+  --border: #2a2a36;
+  --accent-text: color-mix(in oklab, var(--accent) 55%, white);
+  --accent-soft: color-mix(in oklab, var(--accent) 22%, transparent);
+  --ok: #4ade80;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 1rem/1.65 var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--accent-text);
+  text-underline-offset: 0.2em;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.container {
+  width: min(100% - 2rem, var(--max));
+  margin-inline: auto;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Buttons that only work with JavaScript stay out of the way without it. */
+html:not(.js) .needs-js {
+  display: none !important;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.6rem 1.15rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: 600 0.95rem/1 var(--font);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.button:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.button.primary:hover {
+  background: color-mix(in oklab, var(--accent) 88%, black);
+}
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.icon-button:hover {
+  border-color: var(--accent);
+}
+
+.icon-button svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* Sections */
+.section {
+  padding-block: clamp(3.5rem, 8vw, 6rem);
+}
+
+.section + .section {
+  border-top: 1px solid var(--border);
+}
+
+.section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+}
+
+.section-title .index {
+  font: 600 0.85rem/1 var(--mono);
+  color: var(--accent-text);
+  letter-spacing: 0;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font: 600 0.78rem/1.5 var(--font);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Printing gives a one-column résumé: no navigation, no buttons, black on white. */
+@media print {
+  :root,
+  :root[data-theme="dark"] {
+    color-scheme: light;
+    --bg: white;
+    --surface: white;
+    --surface-2: white;
+    --text: black;
+    --muted: #333;
+    --border: #ccc;
+    --accent-text: black;
+    --accent-soft: transparent;
+    --shadow: none;
+  }
+  body {
+    font-size: 10.5pt;
+    line-height: 1.45;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .section {
+    padding-block: 0.9rem;
+  }
+  .section-title {
+    margin-bottom: 0.6rem;
+    font-size: 14pt;
+    break-after: avoid;
+  }
+  .section-title .index {
+    display: none;
+  }
+  h3 {
+    break-after: avoid;
+  }
+  .section + .section {
+    border-top: 1px solid #ccc;
+  }
+  .card {
+    break-inside: avoid;
+  }
+  a {
+    color: black;
+    text-decoration: none;
+  }
+}

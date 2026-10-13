@@ -1,0 +1,22 @@
+---
+// One numbered section with a heading. Every section page-level heading goes through here.
+interface Props {
+  id: string;
+  index: number;
+  title: string;
+  // False for sections that only make sense on screen (left out of the printed résumé).
+  print?: boolean;
+}
+
+const { id, index, title, print = true } = Astro.props;
+---
+
+<section class:list={["section", { "no-print": !print }]} id={id} aria-labelledby={`${id}-title`}>
+  <div class="container">
+    <h2 class="section-title" id={`${id}-title`}>
+      <span class="index" aria-hidden="true">{String(index).padStart(2, "0")}</span>
+      {title}
+    </h2>
+    <slot />
+  </div>
+</section>

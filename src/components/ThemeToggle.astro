@@ -1,0 +1,45 @@
+---
+// Switches light/dark and remembers the choice. Until someone picks, the system setting wins.
+---
+
+<button class="icon-button theme-toggle needs-js" type="button" aria-label="Switch to dark theme">
+  <svg class="sun" viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="4.5" fill="currentColor"></circle>
+    <path
+      d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"></path>
+  </svg>
+  <svg class="moon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z" fill="currentColor"></path>
+  </svg>
+</button>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>(".theme-toggle");
+  const root = document.documentElement;
+  const label = () => {
+    const next = root.dataset.theme === "dark" ? "light" : "dark";
+    button?.setAttribute("aria-label", `Switch to ${next} theme`);
+  };
+  label();
+  button?.addEventListener("click", () => {
+    const theme = root.dataset.theme === "dark" ? "light" : "dark";
+    root.dataset.theme = theme;
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {}
+    label();
+  });
+</script>
+
+<style>
+  .theme-toggle .moon,
+  :global([data-theme="dark"]) .theme-toggle .sun {
+    display: none;
+  }
+  :global([data-theme="dark"]) .theme-toggle .moon {
+    display: block;
+  }
+</style>

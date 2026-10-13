@@ -1,0 +1,65 @@
+---
+// The page shell: meta tags for search engines and link previews, structured data, and the theme
+// script that runs before anything paints (so dark mode never flashes white).
+import "../styles/global.css";
+import { asset } from "../lib/paths";
+import type { Portfolio } from "../lib/schema";
+
+interface Props {
+  portfolio: Portfolio;
+}
+
+const { portfolio } = Astro.props;
+const { site, person, socials } = portfolio;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const favicon = asset("favicon.svg");
+
+// schema.org Person: lets search engines show your name, role and profiles.
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: person.name,
+  jobTitle: person.role,
+  description: site.description,
+  ...(person.email ? { email: `mailto:${person.email}` } : {}),
+  ...(canonical ? { url: canonical } : {}),
+  sameAs: socials.map((s) => s.url),
+};
+---
+
+<!doctype html>
+<html lang={site.lang} style={`--accent: ${portfolio.theme.accent}`}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{site.title}</title>
+    <meta name="description" content={site.description} />
+    <meta name="author" content={person.name} />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="color-scheme" content="light dark" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="icon" href={favicon} type="image/svg+xml" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:title" content={site.title} />
+    <meta property="og:description" content={site.description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script is:inline>
+      // Saved choice first, then the system setting. Storage can be blocked: fall back quietly.
+      (() => {
+        let saved = null;
+        try {
+          saved = localStorage.getItem("theme");
+        } catch {}
+        const dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+        document.documentElement.classList.add("js");
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link no-print" href="#main">Skip to content</a>
+    <slot />
+  </body>
+</html>

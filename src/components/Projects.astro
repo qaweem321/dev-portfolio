@@ -1,0 +1,196 @@
+---
+import { tagsByUse } from "../lib/format";
+import type { Portfolio } from "../lib/schema";
+import Section from "./Section.astro";
+
+interface Props {
+  portfolio: Portfolio;
+  index: number;
+}
+
+const { portfolio, index } = Astro.props;
+// Featured first, then newest.
+const projects = [...portfolio.projects].sort(
+  (a, b) => Number(b.featured) - Number(a.featured) || (b.year ?? 0) - (a.year ?? 0),
+);
+const tags = tagsByUse(projects).slice(0, 8);
+---
+
+<Section id="projects" index={index} title="Projects">
+  {
+    tags.length > 1 && (
+      <div class="filters no-print" role="group" aria-label="Filter projects by technology" hidden>
+        <button type="button" class="filter" data-tag="" aria-pressed="true">All</button>
+        {tags.map((tag) => (
+          <button type="button" class="filter" data-tag={tag} aria-pressed="false">
+            {tag}
+          </button>
+        ))}
+      </div>
+    )
+  }
+  <p class="visually-hidden" aria-live="polite" data-filter-status></p>
+  <ul class="projects">
+    {
+      projects.map((project) => (
+        <li class:list={["project card", { featured: project.featured }]} data-tags={JSON.stringify(project.tags)}>
+          <div class="top">
+            <h3>{project.url ? <a href={project.url}>{project.title}</a> : project.title}</h3>
+            {project.year && <span class="year">{project.year}</span>}
+          </div>
+          <p class="description">{project.description}</p>
+          {project.tags.length > 0 && (
+            <ul class="tags" aria-label="Built with">
+              {project.tags.map((tag) => (
+                <li class="tag">{tag}</li>
+              ))}
+            </ul>
+          )}
+          {(project.url || project.repo) && (
+            <p class="links no-print">
+              {project.url && <a href={project.url}>Live site<span class="visually-hidden">: {project.title}</span></a>}
+              {project.repo && <a href={project.repo}>Source<span class="visually-hidden">: {project.title}</span></a>}
+            </p>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</Section>
+
+<script>
+  // Without JavaScript every project shows and the filter bar stays hidden.
+  const bar = document.querySelector<HTMLElement>(".filters");
+  const status = document.querySelector<HTMLElement>("[data-filter-status]");
+  const cards = [...document.querySelectorAll<HTMLElement>(".project")];
+  if (bar) {
+    bar.hidden = false;
+    bar.addEventListener("click", (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>(".filter");
+      if (!button) return;
+      const tag = button.dataset.tag ?? "";
+      for (const other of bar.querySelectorAll(".filter")) other.setAttribute("aria-pressed", String(other === button));
+      let shown = 0;
+      for (const card of cards) {
+        const match = !tag || (JSON.parse(card.dataset.tags ?? "[]") as string[]).includes(tag);
+        card.hidden = !match;
+        if (match) shown++;
+      }
+      if (status) status.textContent = `${shown} project${shown === 1 ? "" : "s"} shown`;
+    });
+  }
+</script>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.75rem;
+  }
+  .filter {
+    min-height: 2.5rem;
+    padding: 0.45rem 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--muted);
+    font: 500 0.9rem/1 var(--font);
+    cursor: pointer;
+  }
+  .filter:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .filter[aria-pressed="true"] {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--bg);
+  }
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: 1.25rem;
+    list-style: none;
+  }
+  .project {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1.5rem;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease;
+  }
+  .project:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in oklab, var(--accent) 45%, var(--border));
+  }
+  .project[hidden] {
+    display: none;
+  }
+  .featured {
+    background: linear-gradient(160deg, var(--accent-soft), var(--surface) 55%);
+  }
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  h3 {
+    font-size: 1.2rem;
+  }
+  h3 a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  h3 a:hover {
+    color: var(--accent-text);
+  }
+  .year {
+    font: 500 0.85rem/1 var(--mono);
+    color: var(--muted);
+  }
+  .description {
+    color: var(--muted);
+    flex: 1;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+  }
+  .links {
+    display: flex;
+    gap: 1.25rem;
+    font-weight: 600;
+    font-size: 0.925rem;
+  }
+  @media print {
+    .projects {
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+    .project {
+      padding: 0.6rem 0;
+      border: 0;
+      gap: 0.25rem;
+    }
+    .project[hidden] {
+      display: flex;
+    }
+    .description {
+      color: black;
+    }
+    .tag {
+      padding: 0;
+      font-weight: 400;
+      font-size: 9pt;
+    }
+    .tag:not(:last-child)::after {
+      content: " ·";
+    }
+  }
+</style>

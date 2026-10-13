@@ -1,0 +1,140 @@
+---
+import { formatMonth, formatPeriod } from "../lib/format";
+import type { Portfolio } from "../lib/schema";
+import Section from "./Section.astro";
+
+interface Props {
+  portfolio: Portfolio;
+  index: number;
+}
+
+const { portfolio, index } = Astro.props;
+// Newest first, whatever order the config uses.
+const jobs = [...portfolio.experience].sort((a, b) => b.start.localeCompare(a.start));
+const education = [...portfolio.education].sort((a, b) => b.start.localeCompare(a.start));
+---
+
+<Section id="experience" index={index} title="Experience">
+  <ol class="timeline">
+    {
+      jobs.map((job) => (
+        <li class="entry">
+          <div class="when">
+            <time datetime={job.start}>{formatMonth(job.start)}</time> –{" "}
+            {job.end ? <time datetime={job.end}>{formatMonth(job.end)}</time> : "Present"}
+          </div>
+          <div class="what">
+            <h3>
+              {job.role} <span class="at">· {job.company}</span>
+            </h3>
+            {job.location && <p class="where">{job.location}</p>}
+            {job.highlights.length > 0 && (
+              <ul class="highlights">
+                {job.highlights.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+  {
+    education.length > 0 && (
+      <>
+        <h3 class="subhead">Education</h3>
+        <ol class="timeline">
+          {education.map((item) => (
+            <li class="entry">
+              <div class="when">{formatPeriod(item.start, item.end)}</div>
+              <div class="what">
+                <h3>
+                  {item.degree} <span class="at">· {item.school}</span>
+                </h3>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </>
+    )
+  }
+</Section>
+
+<style>
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: 11rem 1fr;
+    gap: 2rem;
+    padding: 1.25rem 0 1.25rem;
+  }
+  .entry + .entry {
+    border-top: 1px dashed var(--border);
+  }
+  .when {
+    font: 500 0.9rem/1.6 var(--mono);
+    color: var(--muted);
+  }
+  h3 {
+    font-size: 1.15rem;
+  }
+  .at {
+    color: var(--accent-text);
+    font-weight: 600;
+  }
+  .where {
+    margin-top: 0.2rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .highlights {
+    margin-top: 0.75rem;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.35rem;
+    color: var(--muted);
+  }
+  .highlights li::marker {
+    color: var(--accent);
+  }
+  .subhead {
+    margin: 2.5rem 0 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  @media (max-width: 640px) {
+    .entry {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+    }
+  }
+  @media print {
+    .entry {
+      grid-template-columns: 10.5rem 1fr;
+      gap: 1rem;
+      padding: 0.5rem 0;
+    }
+    .highlights {
+      margin-top: 0.3rem;
+      gap: 0.1rem;
+      color: black;
+    }
+    .subhead {
+      margin-top: 1rem;
+    }
+    .when {
+      white-space: nowrap;
+    }
+  }
+</style>
