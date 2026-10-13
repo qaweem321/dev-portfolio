@@ -80,6 +80,19 @@ describe("the built page", () => {
     expect(html).toMatch(/<a class="button primary" href="#contact"[^>]*>Get in touch<\/a>/);
   });
 
+  test("the Email button offers the email app, webmail and copying, with a plain link without JavaScript", () => {
+    const email = portfolio.person.email ?? "";
+    expect(html).toMatch(new RegExp(`<a class="button primary no-js-only" href="mailto:${email}"`));
+    expect(html).toMatch(/<button class="button primary trigger needs-js" type="button" aria-expanded="false" aria-controls="email-options"/);
+    expect(html).toMatch(/<div class="options card" id="email-options" hidden/);
+    for (const label of ["Email app", "Gmail", "Outlook", "Yahoo Mail", "Copy address"]) expect(html, label).toContain(label);
+    // Webmail opens in a new tab without handing this page to it.
+    for (const link of html.match(/<a class="option" href="https:[^>]*>/g) ?? []) {
+      expect(link).toMatch(/target="_blank"/);
+      expect(link).toMatch(/rel="noopener noreferrer"/);
+    }
+  });
+
   test("ids are unique", () => {
     const ids = all(/\sid="([^"]+)"/g);
     expect(new Set(ids).size).toBe(ids.length);

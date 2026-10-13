@@ -1,0 +1,209 @@
+---
+// "Email Alex" with a choice of how: the email app, Gmail, Outlook, Yahoo Mail (address filled
+// in), or copying the address. Works with mouse, touch and keyboard (arrows, Home/End, Escape).
+// Without JavaScript it's a plain mailto: link.
+import { mailOptions } from "../lib/mail";
+
+interface Props {
+  email: string;
+  label: string;
+}
+
+const { email, label } = Astro.props;
+const options = mailOptions(email);
+---
+
+<div class="email-menu">
+  <a class="button primary no-js-only" href={`mailto:${email}`}>{label}</a>
+  <button
+    class="button primary trigger needs-js"
+    type="button"
+    aria-expanded="false"
+    aria-controls="email-options"
+    aria-haspopup="true"
+  >
+    {label}
+    <svg class="chevron" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+      <path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </button>
+  <div class="options card" id="email-options" hidden>
+    <p class="hint">Write with</p>
+    <ul>
+      {
+        options.map((option) => (
+          <li>
+            <a
+              class="option"
+              href={option.href}
+              {...(option.webmail ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            >
+              {option.label}
+              {option.webmail && <span class="visually-hidden"> (opens in a new tab)</span>}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <button class="option copy" type="button" data-email={email}>Copy address</button>
+      </li>
+    </ul>
+    <p class="address">{email}</p>
+  </div>
+  <span class="status" aria-live="polite"></span>
+</div>
+
+<script>
+  for (const menu of document.querySelectorAll<HTMLElement>(".email-menu")) {
+    const trigger = menu.querySelector<HTMLButtonElement>(".trigger")!;
+    const panel = menu.querySelector<HTMLElement>(".options")!;
+    const status = menu.querySelector<HTMLElement>(".status")!;
+    const items = () => [...panel.querySelectorAll<HTMLElement>(".option")];
+    const isOpen = () => trigger.getAttribute("aria-expanded") === "true";
+
+    const setOpen = (open: boolean, focus: "first" | "last" | "trigger" | null = null) => {
+      trigger.setAttribute("aria-expanded", String(open));
+      panel.hidden = !open;
+      // Near the bottom of the screen, open upwards if there's more room there.
+      panel.classList.remove("up");
+      if (open) {
+        const box = trigger.getBoundingClientRect();
+        const below = window.innerHeight - box.bottom;
+        if (panel.offsetHeight + 16 > below && box.top > below) panel.classList.add("up");
+      }
+      if (focus === "first") items()[0]?.focus();
+      if (focus === "last") items().at(-1)?.focus();
+      if (focus === "trigger") trigger.focus();
+    };
+
+    trigger.addEventListener("click", () => setOpen(!isOpen()));
+    trigger.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        setOpen(true, event.key === "ArrowDown" ? "first" : "last");
+      }
+    });
+
+    panel.addEventListener("keydown", (event) => {
+      const list = items();
+      const at = list.indexOf(document.activeElement as HTMLElement);
+      const move: Record<string, number> = { ArrowDown: at + 1, ArrowUp: at - 1, Home: 0, End: list.length - 1 };
+      if (event.key in move) {
+        event.preventDefault();
+        list[(move[event.key] + list.length) % list.length]?.focus();
+      }
+    });
+
+    // A choice was made: close. (Links open the app or a new tab; copying shows a message.)
+    panel.addEventListener("click", async (event) => {
+      const target = (event.target as HTMLElement).closest<HTMLElement>(".option");
+      if (!target) return;
+      if (target.classList.contains("copy")) {
+        const email = target.dataset.email ?? "";
+        try {
+          await navigator.clipboard.writeText(email);
+          status.textContent = "Address copied.";
+        } catch {
+          status.textContent = `Copy this address: ${email}`;
+        }
+        setTimeout(() => (status.textContent = ""), 4000);
+      }
+      setOpen(false, "trigger");
+    });
+
+    // Escape, a tap or click outside, or tabbing away closes it.
+    menu.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && isOpen()) {
+        event.preventDefault();
+        setOpen(false, "trigger");
+      }
+    });
+    document.addEventListener("pointerdown", (event) => {
+      if (isOpen() && !menu.contains(event.target as Node)) setOpen(false);
+    });
+    menu.addEventListener("focusout", (event) => {
+      if (isOpen() && !menu.contains(event.relatedTarget as Node | null)) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .email-menu {
+    position: relative;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .chevron {
+    transition: transform 0.15s ease;
+  }
+  .trigger[aria-expanded="true"] .chevron {
+    transform: rotate(180deg);
+  }
+  .options {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 0.5rem);
+    z-index: 20;
+    width: max-content;
+    min-width: 15rem;
+    max-width: calc(100vw - 2rem);
+    padding: 0.5rem;
+  }
+  .options.up {
+    top: auto;
+    bottom: calc(100% + 0.5rem);
+  }
+  .options[hidden] {
+    display: none;
+  }
+  .hint {
+    padding: 0.35rem 0.75rem 0.25rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  ul {
+    list-style: none;
+  }
+  /* 44px tall: comfortable to tap. */
+  .option {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--text);
+    font: 500 0.95rem/1.2 var(--font);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .option:hover,
+  .option:focus-visible {
+    background: var(--surface-2);
+    color: var(--accent-text);
+  }
+  .copy {
+    margin-top: 0.25rem;
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 8px 8px;
+  }
+  .address {
+    padding: 0.4rem 0.75rem 0.25rem;
+    font: 0.82rem/1.4 var(--mono);
+    color: var(--muted);
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+  .status {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+</style>

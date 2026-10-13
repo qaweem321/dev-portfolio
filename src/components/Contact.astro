@@ -1,6 +1,7 @@
 ---
 import { iconPath } from "../lib/icons";
 import type { Portfolio } from "../lib/schema";
+import EmailMenu from "./EmailMenu.astro";
 import Icon from "./Icon.astro";
 import Section from "./Section.astro";
 
@@ -21,13 +22,7 @@ const firstName = person.name.split(/\s+/)[0];
       {
         person.email && (
           <div class="email-row">
-            <a class="button primary" href={`mailto:${person.email}`}>
-              Email {firstName}
-            </a>
-            <button class="button copy needs-js" type="button" data-email={person.email}>
-              Copy address
-            </button>
-            <span class="copied" aria-live="polite" />
+            <EmailMenu email={person.email} label={`Email ${firstName}`} />
           </div>
         )
       }
@@ -47,20 +42,6 @@ const firstName = person.name.split(/\s+/)[0];
   </div>
 </Section>
 
-<script>
-  const button = document.querySelector<HTMLButtonElement>(".copy");
-  const status = document.querySelector<HTMLElement>(".copied");
-  button?.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(button.dataset.email ?? "");
-      if (status) status.textContent = "Copied!";
-    } catch {
-      if (status) status.textContent = button.dataset.email ?? "";
-    }
-    setTimeout(() => status && (status.textContent = ""), 2500);
-  });
-</script>
-
 <style>
   .contact {
     display: grid;
@@ -76,15 +57,7 @@ const firstName = person.name.split(/\s+/)[0];
     max-width: 28rem;
   }
   .email-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem;
     margin-top: 1.5rem;
-  }
-  .copied {
-    color: var(--muted);
-    font-size: 0.9rem;
   }
   .list {
     display: grid;
