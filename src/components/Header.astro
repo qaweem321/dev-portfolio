@@ -21,7 +21,7 @@ const initials = portfolio.person.name
   notice && (
     <div class="notice no-print">
       <p class="container">
-        {notice.text} <a href={notice.url}>{notice.linkLabel} →</a>
+        {notice.text} <a href={notice.url} target="_blank" rel="noopener noreferrer">{notice.linkLabel} →<span class="visually-hidden"> (opens in a new tab)</span></a>
       </p>
     </div>
   )

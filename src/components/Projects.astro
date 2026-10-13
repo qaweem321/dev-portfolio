@@ -35,7 +35,7 @@ const tags = tagsByUse(projects).slice(0, 8);
       projects.map((project) => (
         <li class:list={["project card", { featured: project.featured }]} data-tags={JSON.stringify(project.tags)}>
           <div class="top">
-            <h3>{project.url ? <a href={project.url}>{project.title}</a> : project.title}</h3>
+            <h3>{project.url ? <a href={project.url} target="_blank" rel="noopener noreferrer">{project.title}<span class="visually-hidden"> (opens in a new tab)</span></a> : project.title}</h3>
             {project.year && <span class="year">{project.year}</span>}
           </div>
           <p class="description">{project.description}</p>
@@ -48,8 +48,8 @@ const tags = tagsByUse(projects).slice(0, 8);
           )}
           {(project.url || project.repo) && (
             <p class="links no-print">
-              {project.url && <a href={project.url}>Live site<span class="visually-hidden">: {project.title}</span></a>}
-              {project.repo && <a href={project.repo}>Source<span class="visually-hidden">: {project.title}</span></a>}
+              {project.url && <a href={project.url} target="_blank" rel="noopener noreferrer">Live site<span class="visually-hidden">: {project.title} (opens in a new tab)</span></a>}
+              {project.repo && <a href={project.repo} target="_blank" rel="noopener noreferrer">Source<span class="visually-hidden">: {project.title} (opens in a new tab)</span></a>}
             </p>
           )}
         </li>

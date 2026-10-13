@@ -76,20 +76,24 @@ describe("the built page", () => {
     }
   });
 
-  test("Get in touch goes to the contact section (an email link alone does nothing without a mail app)", () => {
+  test("Get in touch goes to the contact section", () => {
     expect(html).toMatch(/<a class="button primary" href="#contact"[^>]*>Get in touch<\/a>/);
   });
 
-  test("the Email button offers the email app, webmail and copying, with a plain link without JavaScript", () => {
+  test("the email address is shown with a Copy button, and no email link", () => {
     const email = portfolio.person.email ?? "";
-    expect(html).toMatch(new RegExp(`<a class="button primary no-js-only" href="mailto:${email}"`));
-    expect(html).toMatch(/<button class="button primary trigger needs-js" type="button" aria-expanded="false" aria-controls="email-options"/);
-    expect(html).toMatch(/<div class="options card" id="email-options" hidden/);
-    for (const label of ["Email app", "Gmail", "Outlook", "Yahoo Mail", "Copy address"]) expect(html, label).toContain(label);
-    // Webmail opens in a new tab without handing this page to it.
-    for (const link of html.match(/<a class="option" href="https:[^>]*>/g) ?? []) {
-      expect(link).toMatch(/target="_blank"/);
-      expect(link).toMatch(/rel="noopener noreferrer"/);
+    expect(html).toMatch(new RegExp(`<span class="address"[^>]*>${email.replace(/[.+]/g, "\$&")}</span>`));
+    expect(html).toMatch(/<button class="button primary copy needs-js" type="button" data-email="[^"]+"[^>]*>\s*Copy\s*<\/button>/);
+    expect(html).not.toMatch(/href="mailto:/);
+  });
+
+  test("every link to another site opens in a new tab, safely, and says so", () => {
+    const external = html.match(/<a\b[^>]*href="https?:[^"]*"[^>]*>[\s\S]*?<\/a>/g) ?? [];
+    expect(external.length).toBeGreaterThan(3);
+    for (const link of external) {
+      expect(link, link).toMatch(/target="_blank"/);
+      expect(link, link).toMatch(/rel="[^"]*noopener[^"]*"/);
+      expect(link, link).toMatch(/opens in a new tab/);
     }
   });
 

@@ -17,9 +17,8 @@ Morgan isn't a real person).
   instead of publishing a broken page.
 - **No photo needed.** You get an illustrated avatar generated from any text (change the seed until
   you like it). Prefer a photo? Point it at an image.
-- **An Email button that always works.** A plain email link does nothing on computers without
-  an email app, so the button offers a choice: the email app, Gmail, Outlook or Yahoo Mail (a new
-  message already addressed), or copying the address. Works with touch, mouse and keyboard.
+- **Contact that always works.** Your email address is shown on the page with a Copy button
+  next to it: no email app needed.
 - **Prints as a résumé.** Visitors (and you) can click **Save as PDF résumé** and get a tidy
   two-page résumé: no navigation, no buttons, black on white, even from dark mode.
 - **Fast.** Plain HTML and CSS with a few tiny inline scripts: about 21 KB gzipped in three

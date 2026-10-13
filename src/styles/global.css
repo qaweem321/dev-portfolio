@@ -100,8 +100,7 @@ ul {
 }
 
 /* Buttons that only work with JavaScript stay out of the way without it. */
-html:not(.js) .needs-js,
-html.js .no-js-only {
+html:not(.js) .needs-js {
   display: none !important;
 }
 

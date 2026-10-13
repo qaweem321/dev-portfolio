@@ -46,7 +46,14 @@ const avatar =
         {
           socials.map((social) => (
             <li>
-              <a class="icon-button" href={social.url} aria-label={social.label} title={social.label} rel="me noopener">
+              <a
+                class="icon-button"
+                href={social.url}
+                target="_blank"
+                rel="me noopener noreferrer"
+                aria-label={`${social.label} (opens in a new tab)`}
+                title={social.label}
+              >
                 <Icon path={iconPath(social.icon)} size={18} />
               </a>
             </li>

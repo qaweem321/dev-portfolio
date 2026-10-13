@@ -1,7 +1,6 @@
 ---
 import { iconPath } from "../lib/icons";
 import type { Portfolio } from "../lib/schema";
-import EmailMenu from "./EmailMenu.astro";
 import Icon from "./Icon.astro";
 import Section from "./Section.astro";
 
@@ -12,7 +11,6 @@ interface Props {
 
 const { portfolio, index } = Astro.props;
 const { person, socials } = portfolio;
-const firstName = person.name.split(/\s+/)[0];
 ---
 
 <Section id="contact" index={index} title="Contact" print={false}>
@@ -22,7 +20,11 @@ const firstName = person.name.split(/\s+/)[0];
       {
         person.email && (
           <div class="email-row">
-            <EmailMenu email={person.email} label={`Email ${firstName}`} />
+            <span class="address">{person.email}</span>
+            <button class="button primary copy needs-js" type="button" data-email={person.email}>
+              Copy
+            </button>
+            <span class="visually-hidden" aria-live="polite" data-copy-status></span>
           </div>
         )
       }
@@ -31,9 +33,9 @@ const firstName = person.name.split(/\s+/)[0];
       {
         socials.map((social) => (
           <li>
-            <a href={social.url} rel="me noopener">
+            <a href={social.url} target="_blank" rel="me noopener noreferrer">
               <Icon path={iconPath(social.icon)} size={18} />
-              {social.label}
+              {social.label}<span class="visually-hidden"> (opens in a new tab)</span>
             </a>
           </li>
         ))
@@ -41,6 +43,31 @@ const firstName = person.name.split(/\s+/)[0];
     </ul>
   </div>
 </Section>
+
+<script>
+  // Copies the address. If the browser blocks the clipboard, the address is selected instead,
+  // ready to copy by hand (Ctrl+C, or a long press on a phone).
+  const button = document.querySelector<HTMLButtonElement>(".copy");
+  const address = document.querySelector<HTMLElement>(".address");
+  const status = document.querySelector<HTMLElement>("[data-copy-status]");
+  let reset: ReturnType<typeof setTimeout> | undefined;
+  button?.addEventListener("click", async () => {
+    let message = "Copied!";
+    try {
+      await navigator.clipboard.writeText(button.dataset.email ?? "");
+    } catch {
+      if (address) getSelection()?.selectAllChildren(address);
+      message = "Selected: copy it";
+    }
+    button.textContent = message;
+    if (status) status.textContent = message === "Copied!" ? "Email address copied." : "Email address selected.";
+    clearTimeout(reset);
+    reset = setTimeout(() => {
+      button.textContent = "Copy";
+      if (status) status.textContent = "";
+    }, 2500);
+  });
+</script>
 
 <style>
   .contact {
@@ -57,7 +84,24 @@ const firstName = person.name.split(/\s+/)[0];
     max-width: 28rem;
   }
   .email-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
     margin-top: 1.5rem;
+  }
+  .address {
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    font: 500 0.95rem/1.4 var(--mono);
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+  .copy {
+    min-width: 6.5rem;
+    justify-content: center;
   }
   .list {
     display: grid;
