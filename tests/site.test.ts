@@ -155,7 +155,7 @@ describe("the sample site", () => {
   });
 
   test("never prints undefined, null or [object Object]", () => {
-    const visible = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<[^>]+>/g, " ");
+    const visible = html.replace(/<(script|style)[\s\S]*?<\/\1>/g, "").replace(/<[^>]+>/g, " ");
     expect(visible).not.toMatch(/\bundefined\b|\bnull\b|\[object Object\]|\bNaN\b/);
   });
 

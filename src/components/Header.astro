@@ -20,16 +20,16 @@ const initials = portfolio.person.name
 
 {
   notice && (
-    <div class="notice no-print">
+    <aside class="notice no-print" aria-label="Template notice">
       <p class="container">
         {notice.text} <ExternalLink href={notice.url}>{notice.linkLabel} →</ExternalLink>
       </p>
-    </div>
+    </aside>
   )
 }
 <header class="header no-print">
   <div class="container bar">
-    <a class="brand" href="#top" aria-label={`${portfolio.person.name}, back to top`}>
+    <a class="brand" href="#top">
       <span class="monogram" aria-hidden="true">{initials}</span>
       <span class="brand-name">{portfolio.person.name}</span>
     </a>
@@ -178,8 +178,14 @@ const initials = portfolio.person.name
     }
   }
   @media (max-width: 340px) {
+    /* Hidden from view, not from screen readers: it's the link's name. */
     .brand-name {
-      display: none;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
   }
 </style>
