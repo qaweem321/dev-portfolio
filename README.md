@@ -37,7 +37,7 @@ Morgan isn't a real person).
    `https://<you>.github.io/` as the address, name it `<you>.github.io`; any other name gives
    `https://<you>.github.io/<repo-name>/`.
 2. Edit **`src/config.ts`**: replace Alex with yourself. Set `templateNotice` to `null` to remove
-   the "this is a demo" bar.
+   the "this is a demo" bar; from then on the tests also catch a leftover `@example.com` email.
 3. In your repository: **Settings → Pages → Source: GitHub Actions**.
 4. Commit and push. The site is live a minute later.
 
@@ -67,7 +67,8 @@ Good to know:
 - **Empty sections disappear** from the page and the menu, and the rest are renumbered.
 - **A photo instead of the avatar:** put `me.jpg` in `public/` and set
   `avatar: { src: "/me.jpg", alt: "Your Name" }`.
-- **Already have a PDF résumé?** Set `resumeUrl` and the button links to it instead of printing.
+- **Already have a PDF résumé?** Set `resumeUrl` (a full address, or a file in `public/` like
+  `"/resume.pdf"`) and the button links to it instead of printing.
 - **Dates** show as `Mar 2023`, the same in every browser and time zone.
 
 ## Commands

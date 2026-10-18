@@ -5,6 +5,11 @@ import { z } from "astro/zod";
 
 const text = z.string().trim().min(1, "can't be empty");
 const url = z.url({ protocol: /^https?$/, error: "must be a full http(s):// address" });
+// A full address, or a file in public/ ("/me.jpg"). No other schemes (data:, javascript:) and no
+// "//host" addresses, which the base path would break.
+const fileOrUrl = z.union([url, text.regex(/^(?!\/\/)[^:\s]+$/)], {
+  error: 'must be a full http(s):// address or a file in public/, like "/resume.pdf"',
+});
 const month = z
   .string()
   .regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'must look like "2024-03" (year-month)');
@@ -21,7 +26,7 @@ const color = z
 
 const avatar = z.union([
   z.strictObject({ seed: text }),
-  z.strictObject({ src: text, alt: text }),
+  z.strictObject({ src: fileOrUrl, alt: text }),
 ]);
 
 // Jobs and education: a start and optional end month ("2024-03"), the end not before the start.
@@ -35,7 +40,7 @@ export const portfolioSchema = z.strictObject({
     description: text.max(200, "keep it under 200 characters (search engines cut the rest)"),
     lang: text.default("en"),
     // Link-preview picture (PNG or JPG, ideally 1200x630): a file in public/ or a full URL.
-    image: text.optional(),
+    image: fileOrUrl.refine((v) => !/\.svg$/i.test(v), "must be PNG or JPG: social sites ignore SVG previews").optional(),
     templateNotice: z.strictObject({ text, linkLabel: text, url }).nullish(),
   }),
   person: z.strictObject({
@@ -47,7 +52,7 @@ export const portfolioSchema = z.strictObject({
     availability: z.strictObject({ open: z.boolean(), text }).optional(),
     avatar,
     email: z.email("must be an email address").optional(),
-    resumeUrl: url.optional(),
+    resumeUrl: fileOrUrl.optional(),
     // The line above your email in the Contact section.
     contactNote: text.default("Have a role, a project or a question? Get in touch."),
   }),

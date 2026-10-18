@@ -1,13 +1,8 @@
 ---
-import type { Portfolio } from "../lib/schema";
+import type { SectionProps } from "../lib/portfolio";
 import Section from "./Section.astro";
 
-interface Props {
-  portfolio: Portfolio;
-  id: string;
-  index: number;
-  title: string;
-}
+type Props = SectionProps;
 
 const { portfolio, id, index, title } = Astro.props;
 ---
@@ -22,7 +17,7 @@ const { portfolio, id, index, title } = Astro.props;
         <ul class="skills" aria-label="Skills">
           {portfolio.skills.map((group) => (
             <li>
-              <h3>{group.group}</h3>
+              <h3 class="label">{group.group}</h3>
               <ul class="items">
                 {group.items.map((item) => (
                   <li>{item}</li>
@@ -57,11 +52,6 @@ const { portfolio, id, index, title } = Astro.props;
   }
   h3 {
     margin-bottom: 0.6rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
   }
   .items {
     display: flex;

@@ -1,14 +1,9 @@
 ---
-import type { Portfolio } from "../lib/schema";
+import type { SectionProps } from "../lib/portfolio";
 import Section from "./Section.astro";
 import Timeline from "./Timeline.astro";
 
-interface Props {
-  portfolio: Portfolio;
-  id: string;
-  index: number;
-  title: string;
-}
+type Props = SectionProps;
 
 const { portfolio, id, index, title } = Astro.props;
 const jobs = portfolio.experience.map((job) => ({ ...job, title: job.role, at: job.company }));
@@ -20,7 +15,7 @@ const education = portfolio.education.map((item) => ({ ...item, title: item.degr
   {
     education.length > 0 && (
       <>
-        {jobs.length > 0 && <h3 class="subhead">Education</h3>}
+        {jobs.length > 0 && <h3 class="subhead label">Education</h3>}
         <Timeline items={education} />
       </>
     )
@@ -30,11 +25,6 @@ const education = portfolio.education.map((item) => ({ ...item, title: item.degr
 <style>
   .subhead {
     margin: 2.5rem 0 0.5rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
   }
   @media print {
     .subhead {

@@ -10,7 +10,8 @@ const config: PortfolioInput = {
       "Alex Morgan builds fast, accessible web products end to end: TypeScript, React, Node.js and Postgres.",
     lang: "en",
     // Optional picture for link previews (PNG or JPG, ideally 1200x630) in public/: image: "/preview.png"
-    // Shows a slim "this is a template" bar at the top. Set it to null (or delete it) on your site.
+    // Shows a slim "this is a template" bar at the top. Set it to null (or delete it) on your site:
+    // from then on the tests also fail if a placeholder email like ...@example.com is left.
     templateNotice: {
       text: "This is a demo with placeholder data. Make it yours in one file.",
       linkLabel: "Use this template",

@@ -39,7 +39,7 @@ const avatar =
         {hasContact(portfolio) && <a class="button primary" href="#contact">Get in touch</a>}
         {
           person.resumeUrl ? (
-            <ExternalLink class="button" href={person.resumeUrl}>Résumé</ExternalLink>
+            <ExternalLink class="button" href={asset(person.resumeUrl)}>Résumé</ExternalLink>
           ) : (
             <button class="button needs-js" type="button" data-print-resume>Save as PDF résumé</button>
           )

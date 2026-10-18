@@ -1,15 +1,10 @@
 ---
 import { tagsByUse } from "../lib/format";
-import type { Portfolio } from "../lib/schema";
+import type { SectionProps } from "../lib/portfolio";
 import ExternalLink from "./ExternalLink.astro";
 import Section from "./Section.astro";
 
-interface Props {
-  portfolio: Portfolio;
-  id: string;
-  index: number;
-  title: string;
-}
+type Props = SectionProps;
 
 const { portfolio, id, index, title } = Astro.props;
 // Featured first, then newest.

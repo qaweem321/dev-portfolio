@@ -90,6 +90,21 @@ describe("the config", () => {
     }
   });
 
+  test("the résumé and photo can be files in public/ or full addresses, nothing else", () => {
+    for (const value of ["/resume.pdf", "resume.pdf", "https://alex.dev/cv.pdf"]) {
+      expect(parsePortfolio(withChange((c) => (c.person.resumeUrl = value))).person.resumeUrl).toBe(value);
+    }
+    for (const value of ["javascript:alert(1)", "data:application/pdf;base64,AAAA", "//cdn.alex.dev/cv.pdf"]) {
+      expect(() => parsePortfolio(withChange((c) => (c.person.resumeUrl = value))), value).toThrow(/person\.resumeUrl/);
+      expect(() => parsePortfolio(withChange((c) => (c.person.avatar = { src: value, alt: "Me" }))), value).toThrow(/person\.avatar/);
+    }
+  });
+
+  test("the link-preview image can't be an SVG", () => {
+    expect(() => parsePortfolio(withChange((c) => (c.site.image = "/preview.svg")))).toThrow(/site\.image: must be PNG or JPG/);
+    expect(parsePortfolio(withChange((c) => (c.site.image = "/preview.png"))).site.image).toBe("/preview.png");
+  });
+
   test("education works without any jobs", () => {
     const portfolio = parsePortfolio(withChange((c) => (c.experience = [])));
     expect(portfolio.experience).toEqual([]);

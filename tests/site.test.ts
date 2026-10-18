@@ -9,6 +9,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:f
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import config from "../src/config";
 import { parsePortfolio } from "../src/lib/schema";
 import fixture from "./fixtures/portfolio";
 
@@ -56,8 +57,20 @@ const SOCIAL_HOSTS = [
 ];
 const PLACEHOLDER_HOME = new RegExp(`^https?://(www\\.)?(${SOCIAL_HOSTS.map(escapeRegExp).join("|")})/?(in/?)?$`, "i");
 
+// Demo data left on a real site: copied examples ("your-name") always count; placeholder email
+// addresses count once the site stops calling itself a demo (site.templateNotice removed).
+function leftoverDemoData(html: string, isDemo: boolean) {
+  const found = all(html, /href="([^"]*\byour-?(name|user-?name|handle)\b[^"]*)"/gi);
+  if (!isDemo) found.push(...(html.match(/[\w.+-]+@example\.(com|org|net)\b/gi) ?? []));
+  return [...new Set(found)];
+}
+
 // Holds for any config, so it runs on your site and on the sample.
-function generalChecks(page: () => string) {
+function generalChecks(page: () => string, isDemo: boolean) {
+  test("no demo data is left (placeholder emails once templateNotice is gone, copied examples)", () => {
+    expect(leftoverDemoData(page(), isDemo)).toEqual([]);
+  });
+
   test("every in-page link points at an element that exists", () => {
     const ids = new Set(all(page(), /\sid="([^"]+)"/g));
     for (const target of all(page(), /href="#([^"]*)"/g)) expect(ids.has(target), `#${target}`).toBe(true);
@@ -104,7 +117,7 @@ describe("your site", () => {
     html = readPage(dir);
   }, 120_000);
 
-  generalChecks(() => html);
+  generalChecks(() => html, Boolean(parsePortfolio(config).site.templateNotice));
 });
 
 describe("the sample site", () => {
@@ -124,7 +137,14 @@ describe("the sample site", () => {
     expect(html, "PORTFOLIO_CONFIG was ignored: check the plugin in astro.config.mjs").toContain(escapeHtml(portfolio.person.name));
   });
 
-  generalChecks(() => html);
+  generalChecks(() => html, true);
+
+  test("the demo-data check finds placeholder emails and copied examples", () => {
+    const page = '<input value="alex@example.com"><a href="https://www.linkedin.com/in/your-name">';
+    expect(leftoverDemoData(page, false)).toEqual(["https://www.linkedin.com/in/your-name", "alex@example.com"]);
+    expect(leftoverDemoData(page, true)).toEqual(["https://www.linkedin.com/in/your-name"]);
+    expect(leftoverDemoData('<a href="https://github.com/sam">', false)).toEqual([]);
+  });
 
   test("shows the person, every project, job and school", () => {
     expect(html).toMatch(/<h1 id="hero-title"/);

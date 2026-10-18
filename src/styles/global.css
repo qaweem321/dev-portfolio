@@ -214,6 +214,15 @@ html:not(.js) .needs-js {
   letter-spacing: 0;
 }
 
+/* Small uppercase heading over a group: skill groups, "Education". */
+.label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -281,7 +290,16 @@ html:not(.js) .needs-js {
   .section + .section {
     border-top: 1px solid #ccc;
   }
-  .card {
+  /* Small uppercase heading over a group: skill groups, "Education". */
+.label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.card {
     break-inside: avoid;
   }
   a {

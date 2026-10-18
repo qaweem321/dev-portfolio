@@ -1,16 +1,11 @@
 ---
 import { iconPath } from "../lib/icons";
-import type { Portfolio } from "../lib/schema";
+import type { SectionProps } from "../lib/portfolio";
 import ExternalLink from "./ExternalLink.astro";
 import Icon from "./Icon.astro";
 import Section from "./Section.astro";
 
-interface Props {
-  portfolio: Portfolio;
-  id: string;
-  index: number;
-  title: string;
-}
+type Props = SectionProps;
 
 const { portfolio, id, index, title } = Astro.props;
 const { person, socials } = portfolio;
@@ -73,7 +68,11 @@ const { person, socials } = portfolio;
     } catch {
       address.focus();
       address.setSelectionRange(0, address.value.length);
-      copied = document.execCommand("copy");
+      try {
+        copied = document.execCommand("copy");
+      } catch {
+        copied = false;
+      }
     }
     button.textContent = copied ? "Copied!" : "Selected";
     if (status) status.textContent = copied ? "Email address copied." : "Email address selected. Copy it now.";
