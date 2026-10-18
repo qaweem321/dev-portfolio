@@ -22,12 +22,16 @@ Morgan isn't a real person).
   next to it: no email app needed.
 - **Prints as a résumé.** Visitors (and you) can click **Save as PDF résumé** and get a tidy
   two-page résumé: no navigation, no buttons, black on white, even from dark mode.
-- **Fast.** Plain HTML and CSS with a few tiny inline scripts: about 21 KB gzipped in three
-  requests (page, stylesheet, avatar), no web fonts, no trackers.
+- **Fast.** Plain HTML and CSS with a few tiny inline scripts: about 21 KB gzipped for the page,
+  stylesheet and avatar, no web fonts, no trackers. Lighthouse scores 100 in every category on
+  phone and desktop.
 - **Accessible.** Keyboard navigation with a skip link, visible focus, labelled icon buttons,
   WCAG AA contrast in both themes, reduced-motion support, and it works without JavaScript.
-- **Search-friendly.** Page description, link-preview tags and schema.org `Person` data so search
-  engines show your name, role and profiles.
+  No errors in [axe](https://www.deque.com/axe/) in either theme.
+- **Follows the visitor's light/dark setting**, even without JavaScript and when it changes,
+  until they pick a theme with the toggle (remembered for next time).
+- **Search-friendly.** Page description, link-preview tags (with a picture if you add one) and
+  schema.org `Person` data so search engines show your name, role and profiles.
 
 ![The same page in light mode](docs/screenshot-light.png)
 
@@ -64,11 +68,15 @@ npm run dev
 Good to know:
 
 - **Featured projects come first**, then the newest. The filter buttons are built from your tags.
-- **Empty sections disappear** from the page and the menu, and the rest are renumbered.
+- **Empty sections disappear** from the page and the menu, and the rest are renumbered. With
+  education but no jobs yet, the section is called Education.
 - **A photo instead of the avatar:** put `me.jpg` in `public/` and set
   `avatar: { src: "/me.jpg", alt: "Your Name" }`.
 - **Already have a PDF résumé?** Set `resumeUrl` (a full address, or a file in `public/` like
   `"/resume.pdf"`) and the button links to it instead of printing.
+- **A picture for link previews:** put a PNG or JPG (ideally 1200x630) in `public/` and set
+  `site.image: "/preview.png"`, or use a full address. Without it, a photo avatar is used. SVG
+  isn't allowed: social sites ignore it.
 - **Dates** show as `Mar 2023`, the same in every browser and time zone.
 
 ## Commands
@@ -90,16 +98,22 @@ Good to know:
   the field's name.
 - **The real build:** your site and the sample are built with `astro build` and the HTML is checked:
   every `#link` has a target, ids are unique, outside links open safely in a new tab, images have
-  alt text, icon links have names. For the sample also: every project, job and school is on the
-  page, nothing prints `undefined`, and files load from the GitHub Pages path.
+  alt text, icon links have names, and no demo data is left: no placeholder links (a social site's
+  home page, `your-name`) and, once `templateNotice` is removed, no `@example.com` email. For the
+  sample also: every project, job and school is on the page, nothing prints `undefined`, and files
+  load from the GitHub Pages path.
+- **The deploy is locked down.** Installing packages, the checks and the build run with read-only
+  rights; only a separate job, which runs none of the project's code, can publish your site.
 - **In a browser:** both themes, phone and desktop widths, the menu, filters, keyboard focus,
-  print output and color contrast were checked by hand before release.
+  print output and color contrast were checked by hand. Lighthouse 13.5 (100 in every category)
+  and axe 4.13 (no errors, light and dark, down to 320px wide) were run on the production build.
 
 ## Hosting somewhere else
 
 `npm run build` makes a plain static site in `dist/`: upload it to Netlify, Cloudflare Pages,
 Vercel or any web server. Set the `SITE` environment variable (for example
-`https://alexmorgan.dev`) for correct canonical links.
+`https://alexmorgan.dev`) for correct canonical links and link-preview pictures (a full-address
+`site.image` works without it).
 
 ## Credits
 
