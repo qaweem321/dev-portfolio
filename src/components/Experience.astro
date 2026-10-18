@@ -6,44 +6,49 @@ import Section from "./Section.astro";
 interface Props {
   portfolio: Portfolio;
   index: number;
+  title: string;
 }
 
-const { portfolio, index } = Astro.props;
+const { portfolio, index, title } = Astro.props;
 // Newest first, whatever order the config uses.
 const jobs = [...portfolio.experience].sort((a, b) => b.start.localeCompare(a.start));
 const education = [...portfolio.education].sort((a, b) => b.start.localeCompare(a.start));
 ---
 
-<Section id="experience" index={index} title="Experience">
-  <ol class="timeline">
-    {
-      jobs.map((job) => (
-        <li class="entry">
-          <div class="when">
-            <time datetime={job.start}>{formatMonth(job.start)}</time> –{" "}
-            {job.end ? <time datetime={job.end}>{formatMonth(job.end)}</time> : "Present"}
-          </div>
-          <div class="what">
-            <h3>
-              {job.role} <span class="at">· {job.company}</span>
-            </h3>
-            {job.location && <p class="where">{job.location}</p>}
-            {job.highlights.length > 0 && (
-              <ul class="highlights">
-                {job.highlights.map((item) => (
-                  <li>{item}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </li>
-      ))
-    }
-  </ol>
+<Section id="experience" index={index} title={title}>
+  {
+    jobs.length > 0 && (
+      <ol class="timeline">
+        {
+          jobs.map((job) => (
+            <li class="entry">
+              <div class="when">
+                <time datetime={job.start}>{formatMonth(job.start)}</time> –{" "}
+                {job.end ? <time datetime={job.end}>{formatMonth(job.end)}</time> : "Present"}
+              </div>
+              <div class="what">
+                <h3>
+                  {job.role} <span class="at">· {job.company}</span>
+                </h3>
+                {job.location && <p class="where">{job.location}</p>}
+                {job.highlights.length > 0 && (
+                  <ul class="highlights">
+                    {job.highlights.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    )
+  }
   {
     education.length > 0 && (
       <>
-        <h3 class="subhead">Education</h3>
+        {jobs.length > 0 && <h3 class="subhead">Education</h3>}
         <ol class="timeline">
           {education.map((item) => (
             <li class="entry">

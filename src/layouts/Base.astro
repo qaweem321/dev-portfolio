@@ -13,6 +13,9 @@ const { portfolio } = Astro.props;
 const { site, person, socials } = portfolio;
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
 const favicon = asset("favicon.svg");
+// Link previews need a PNG/JPG at a full address: the configured image, else a photo avatar.
+const previewImage = site.image ?? ("src" in person.avatar && !/\.svg$/i.test(person.avatar.src) ? person.avatar.src : undefined);
+const ogImage = previewImage && Astro.site ? new URL(asset(previewImage), Astro.site).href : undefined;
 
 // schema.org Person: lets search engines show your name, role and profiles.
 const structuredData = {
@@ -25,6 +28,8 @@ const structuredData = {
   ...(canonical ? { url: canonical } : {}),
   sameAs: socials.map((s) => s.url),
 };
+// JSON.stringify leaves "</script>" alone, which would end the tag early; \u003c is the same "<" in JSON.
+const structuredJson = JSON.stringify(structuredData).replace(/</g, "\\u003c");
 ---
 
 <!doctype html>
@@ -43,17 +48,17 @@ const structuredData = {
     <meta property="og:title" content={site.title} />
     <meta property="og:description" content={site.description} />
     {canonical && <meta property="og:url" content={canonical} />}
-    <meta name="twitter:card" content="summary" />
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={site.image && ogImage ? "summary_large_image" : "summary"} />
+    <script type="application/ld+json" set:html={structuredJson} />
     <script is:inline>
-      // Saved choice first, then the system setting. Storage can be blocked: fall back quietly.
+      // A saved choice wins; without one the CSS follows the system setting (also live, and
+      // without JavaScript). Storage can be blocked: fall back quietly.
       (() => {
-        let saved = null;
         try {
-          saved = localStorage.getItem("theme");
+          const saved = localStorage.getItem("theme");
+          if (saved === "dark" || saved === "light") document.documentElement.dataset.theme = saved;
         } catch {}
-        const dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-        document.documentElement.dataset.theme = dark ? "dark" : "light";
         document.documentElement.classList.add("js");
       })();
     </script>

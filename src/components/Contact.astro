@@ -1,27 +1,37 @@
 ---
 import { iconPath } from "../lib/icons";
 import type { Portfolio } from "../lib/schema";
+import ExternalLink from "./ExternalLink.astro";
 import Icon from "./Icon.astro";
 import Section from "./Section.astro";
 
 interface Props {
   portfolio: Portfolio;
   index: number;
+  title: string;
 }
 
-const { portfolio, index } = Astro.props;
+const { portfolio, index, title } = Astro.props;
 const { person, socials } = portfolio;
 ---
 
-<Section id="contact" index={index} title="Contact" print={false}>
+<Section id="contact" index={index} title={title} print={false}>
   <div class="contact card">
     <div>
       <p class="lead">Have a role, a project or a question? I reply within two working days.</p>
       {
         person.email && (
-          <div class="email-row">
-            <span class="address">{person.email}</span>
-            <button class="button primary copy needs-js" type="button" data-email={person.email}>
+          <div class="email-row" data-email-row>
+            <input
+              class="address"
+              type="text"
+              readonly
+              value={person.email}
+              size={person.email.length}
+              aria-label="Email address"
+              data-address
+            />
+            <button class="button primary copy needs-js" type="button" data-copy>
               Copy
             </button>
             <span class="visually-hidden" aria-live="polite" data-copy-status></span>
@@ -33,10 +43,10 @@ const { person, socials } = portfolio;
       {
         socials.map((social) => (
           <li>
-            <a href={social.url} target="_blank" rel="me noopener noreferrer">
+            <ExternalLink href={social.url} me>
               <Icon path={iconPath(social.icon)} size={18} />
-              {social.label}<span class="visually-hidden"> (opens in a new tab)</span>
-            </a>
+              {social.label}
+            </ExternalLink>
           </li>
         ))
       }
@@ -45,22 +55,27 @@ const { person, socials } = portfolio;
 </Section>
 
 <script>
-  // Copies the address. If the browser blocks the clipboard, the address is selected instead,
-  // ready to copy by hand (Ctrl+C, or a long press on a phone).
-  const button = document.querySelector<HTMLButtonElement>(".copy");
-  const address = document.querySelector<HTMLElement>(".address");
-  const status = document.querySelector<HTMLElement>("[data-copy-status]");
+  // Copies the address. If the browser blocks the clipboard API (older iOS, some in-app
+  // browsers), the address field is selected and copied the old way; if even that fails, the
+  // selection stays, ready for Ctrl+C or a long press.
+  const row = document.querySelector<HTMLElement>("[data-email-row]");
+  const address = row?.querySelector<HTMLInputElement>("[data-address]");
+  const button = row?.querySelector<HTMLButtonElement>("[data-copy]");
+  const status = row?.querySelector<HTMLElement>("[data-copy-status]");
   let reset: ReturnType<typeof setTimeout> | undefined;
+  address?.addEventListener("focus", () => address.select());
   button?.addEventListener("click", async () => {
-    let message = "Copied!";
+    if (!address) return;
+    let copied = true;
     try {
-      await navigator.clipboard.writeText(button.dataset.email ?? "");
+      await navigator.clipboard.writeText(address.value);
     } catch {
-      if (address) getSelection()?.selectAllChildren(address);
-      message = "Selected: copy it";
+      address.focus();
+      address.setSelectionRange(0, address.value.length);
+      copied = document.execCommand("copy");
     }
-    button.textContent = message;
-    if (status) status.textContent = message === "Copied!" ? "Email address copied." : "Email address selected.";
+    button.textContent = copied ? "Copied!" : "Selected";
+    if (status) status.textContent = copied ? "Email address copied." : "Email address selected. Copy it now.";
     clearTimeout(reset);
     reset = setTimeout(() => {
       button.textContent = "Copy";
@@ -91,13 +106,15 @@ const { person, socials } = portfolio;
     margin-top: 1.5rem;
   }
   .address {
+    min-width: 0;
+    max-width: 100%;
     padding: 0.55rem 0.9rem;
     border: 1px solid var(--border);
     border-radius: 10px;
     background: var(--surface);
+    color: var(--text);
     font: 500 0.95rem/1.4 var(--mono);
-    overflow-wrap: anywhere;
-    user-select: all;
+    text-overflow: ellipsis;
   }
   .copy {
     min-width: 6.5rem;

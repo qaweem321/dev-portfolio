@@ -63,6 +63,29 @@ describe("the config", () => {
     expect(() => parsePortfolio(withChange((c) => (c.socials[0].url = "javascript:alert(1)")))).toThrow(/socials\.0\.url/);
   });
 
+  test("a misspelled field name is an error, not silently ignored", () => {
+    expect(() => parsePortfolio(withChange((c) => (c.person.resumeURL = "https://example.com/cv.pdf")))).toThrow(
+      /person: Unrecognized key: "resumeURL"/,
+    );
+    expect(() => parsePortfolio(withChange((c) => (c.projets = c.projects)))).toThrow(/config: Unrecognized key: "projets"/);
+    expect(() => parsePortfolio(withChange((c) => (c.experience[0].compnay = "X")))).toThrow(/experience\.0/);
+  });
+
+  test("the accent must be a real color, nothing that could break the CSS", () => {
+    for (const accent of ["#6d5dfc", "#abc", "#6d5dfc80", "rgb(109 93 252)", "oklch(58% 0.22 280)", "hsl(250, 90%, 68%)"]) {
+      expect(parsePortfolio(withChange((c) => (c.theme.accent = accent))).theme.accent, accent).toBe(accent);
+    }
+    for (const accent of ["purpel; color: red", "#12345", "rgb(1 2 3); x: y", "url(x)", "red"]) {
+      expect(() => parsePortfolio(withChange((c) => (c.theme.accent = accent))), accent).toThrow(/theme\.accent/);
+    }
+  });
+
+  test("education works without any jobs", () => {
+    const portfolio = parsePortfolio(withChange((c) => (c.experience = [])));
+    expect(portfolio.experience).toEqual([]);
+    expect(portfolio.education).toHaveLength(1);
+  });
+
   test("the template notice can be switched off", () => {
     expect(parsePortfolio(withChange((c) => (c.site.templateNotice = null))).site.templateNotice).toBeNull();
     expect(parsePortfolio(withChange((c) => delete c.site.templateNotice)).site.templateNotice).toBeUndefined();

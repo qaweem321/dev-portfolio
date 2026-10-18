@@ -9,6 +9,7 @@ const config: PortfolioInput = {
     description:
       "Alex Morgan builds fast, accessible web products end to end: TypeScript, React, Node.js and Postgres.",
     lang: "en",
+    // Optional picture for link previews (PNG or JPG, ideally 1200x630) in public/: image: "/preview.png"
     // Shows a slim "this is a template" bar at the top. Set it to null (or delete it) on your site.
     templateNotice: {
       text: "This is a demo with placeholder data. Make it yours in one file.",
@@ -131,7 +132,8 @@ const config: PortfolioInput = {
 
   education: [{ school: "University of Porto", degree: "BSc Computer Science", start: "2014-09", end: "2017-07" }],
 
-  // Any CSS color. Used for links, buttons and highlights in both themes.
+  // A hex color or color function, such as "#6d5dfc" or "oklch(58% 0.22 280)". Used for links,
+  // buttons and highlights in both themes; pick one dark enough for white button text.
   theme: { accent: "#6d5dfc" },
 };
 

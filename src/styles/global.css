@@ -1,34 +1,30 @@
-/* Design tokens. --accent comes from src/config.ts; everything else derives from it. */
+/* Design tokens. --accent comes from src/config.ts; everything else derives from it.
+   Each color is light-dark(light, dark): the system setting picks one, even without JavaScript,
+   until the visitor chooses a theme with the toggle (data-theme on <html>). */
 :root {
-  color-scheme: light;
-  --bg: #fbfbfd;
-  --surface: #ffffff;
-  --surface-2: #f3f3f7;
-  --text: #16161d;
-  --muted: #5b5b6b;
-  --border: #e4e4ec;
-  --accent-text: color-mix(in oklab, var(--accent) 82%, black);
-  --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
-  --ok: #16a34a;
-  --shadow: 0 1px 2px rgb(16 16 24 / 0.04), 0 8px 24px rgb(16 16 24 / 0.06);
+  color-scheme: light dark;
+  --bg: light-dark(#fbfbfd, #0d0d12);
+  --surface: light-dark(#ffffff, #15151c);
+  --surface-2: light-dark(#f3f3f7, #1c1c25);
+  --text: light-dark(#16161d, #ececf3);
+  --muted: light-dark(#5b5b6b, #a2a2b5);
+  --border: light-dark(#e4e4ec, #2a2a36);
+  --accent-text: light-dark(color-mix(in oklab, var(--accent) 82%, black), color-mix(in oklab, var(--accent) 55%, white));
+  --accent-soft: light-dark(color-mix(in oklab, var(--accent) 12%, transparent), color-mix(in oklab, var(--accent) 22%, transparent));
+  --ok: light-dark(#16a34a, #4ade80);
+  --shadow: 0 1px 2px light-dark(rgb(16 16 24 / 0.04), rgb(0 0 0 / 0.3)), 0 8px 24px light-dark(rgb(16 16 24 / 0.06), rgb(0 0 0 / 0.35));
   --radius: 14px;
   --max: 68rem;
   --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
 }
 
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0d0d12;
-  --surface: #15151c;
-  --surface-2: #1c1c25;
-  --text: #ececf3;
-  --muted: #a2a2b5;
-  --border: #2a2a36;
-  --accent-text: color-mix(in oklab, var(--accent) 55%, white);
-  --accent-soft: color-mix(in oklab, var(--accent) 22%, transparent);
-  --ok: #4ade80;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
 }
 
 *,
@@ -231,7 +227,7 @@ html:not(.js) .needs-js {
 /* Printing gives a one-column résumé: no navigation, no buttons, black on white. */
 @media print {
   :root,
-  :root[data-theme="dark"] {
+  :root[data-theme] {
     color-scheme: light;
     --bg: white;
     --surface: white;

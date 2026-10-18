@@ -2,6 +2,7 @@
 import About from "../components/About.astro";
 import Contact from "../components/Contact.astro";
 import Experience from "../components/Experience.astro";
+import ExternalLink from "../components/ExternalLink.astro";
 import Header from "../components/Header.astro";
 import Hero from "../components/Hero.astro";
 import Projects from "../components/Projects.astro";
@@ -15,7 +16,13 @@ const portfolio = parsePortfolio(config);
 const sections = [
   { id: "about", label: "About", component: About, show: true },
   { id: "projects", label: "Projects", component: Projects, show: portfolio.projects.length > 0 },
-  { id: "experience", label: "Experience", component: Experience, show: portfolio.experience.length > 0 },
+  // Education lives in this section too, so a student with no jobs yet still gets it.
+  {
+    id: "experience",
+    label: portfolio.experience.length > 0 ? "Experience" : "Education",
+    component: Experience,
+    show: portfolio.experience.length > 0 || portfolio.education.length > 0,
+  },
   { id: "contact", label: "Contact", component: Contact, show: Boolean(portfolio.person.email) || portfolio.socials.length > 0 },
 ].filter((section) => section.show);
 const year = new Date().getUTCFullYear();
@@ -25,13 +32,13 @@ const year = new Date().getUTCFullYear();
   <Header portfolio={portfolio} links={sections.map((s) => ({ href: `#${s.id}`, label: s.label }))} />
   <main id="main">
     <Hero portfolio={portfolio} />
-    {sections.map(({ component: Component }, i) => <Component portfolio={portfolio} index={i + 1} />)}
+    {sections.map(({ component: Component, label }, i) => <Component portfolio={portfolio} index={i + 1} title={label} />)}
   </main>
   <footer class="footer no-print">
     <div class="container">
       <p>© {year} {portfolio.person.name}</p>
       <p>
-        Built with <a href="https://github.com/qaweem321/dev-portfolio" target="_blank" rel="noopener noreferrer">dev-portfolio<span class="visually-hidden"> (opens in a new tab)</span></a>
+        Built with <ExternalLink href="https://github.com/qaweem321/dev-portfolio">dev-portfolio</ExternalLink>
       </p>
     </div>
   </footer>

@@ -12,9 +12,10 @@ Morgan isn't a real person).
 
 - **One file to edit.** Everything you'd change is in [`src/config.ts`](src/config.ts): name,
   projects, jobs, links, accent color. No components to dig through.
-- **Mistakes are caught before they ship.** The config is checked when the site builds. A typo
-  stops the build with a message like `projects.2.url: must be a full http(s):// address`
-  instead of publishing a broken page.
+- **Mistakes are caught before they ship.** The config is checked when the site builds. A typo,
+  including a misspelled field name, stops the build with a message like
+  `projects.2.url: must be a full http(s):// address` instead of publishing a broken page. The
+  deploy runs the type check and tests first, too.
 - **No photo needed.** You get an illustrated avatar generated from any text (change the seed until
   you like it). Prefer a photo? Point it at an image.
 - **Contact that always works.** Your email address is shown on the page with a Copy button
@@ -51,14 +52,14 @@ npm run dev
 
 | Section | Fields |
 | --- | --- |
-| `site` | `title`, `description` (search results), `lang`, `templateNotice` |
+| `site` | `title`, `description` (search results), `lang`, `image` (link previews), `templateNotice` |
 | `person` | `name`, `role`, `tagline`, `location`, `about` (paragraphs), `availability`, `avatar`, `email`, `resumeUrl` |
 | `socials` | `label`, `url`, `icon` (any [Simple Icons](https://simpleicons.org) slug, such as `github` or `mastodon`) |
 | `skills` | groups of items |
 | `projects` | `title`, `description`, `tags`, `url`, `repo`, `year`, `featured` |
 | `experience` | `company`, `role`, `start` and `end` as `"2024-03"` (no `end` = current), `location`, `highlights` |
 | `education` | `school`, `degree`, `start`, `end` |
-| `theme` | `accent`: any CSS color |
+| `theme` | `accent`: a hex color or color function, such as `#6d5dfc` or `oklch(58% 0.22 280)` |
 
 Good to know:
 

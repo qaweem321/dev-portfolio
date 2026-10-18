@@ -2,7 +2,7 @@
 // Switches light/dark and remembers the choice. Until someone picks, the system setting wins.
 ---
 
-<button class="icon-button theme-toggle needs-js" type="button" aria-label="Switch to dark theme">
+<button class="icon-button theme-toggle needs-js" type="button" aria-label="Switch theme" data-theme-toggle>
   <svg class="sun" viewBox="0 0 24 24" aria-hidden="true">
     <circle cx="12" cy="12" r="4.5" fill="currentColor"></circle>
     <path
@@ -17,15 +17,16 @@
 </button>
 
 <script>
-  const button = document.querySelector<HTMLButtonElement>(".theme-toggle");
+  const button = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
   const root = document.documentElement;
-  const label = () => {
-    const next = root.dataset.theme === "dark" ? "light" : "dark";
-    button?.setAttribute("aria-label", `Switch to ${next} theme`);
-  };
+  const system = matchMedia("(prefers-color-scheme: dark)");
+  // The saved choice, else whatever the system shows right now.
+  const current = () => root.dataset.theme ?? (system.matches ? "dark" : "light");
+  const label = () => button?.setAttribute("aria-label", `Switch to ${current() === "dark" ? "light" : "dark"} theme`);
   label();
+  system.addEventListener("change", label);
   button?.addEventListener("click", () => {
-    const theme = root.dataset.theme === "dark" ? "light" : "dark";
+    const theme = current() === "dark" ? "light" : "dark";
     root.dataset.theme = theme;
     try {
       localStorage.setItem("theme", theme);
@@ -41,5 +42,14 @@
   }
   :global([data-theme="dark"]) .theme-toggle .moon {
     display: block;
+  }
+  /* No choice saved yet: show the icon for the system theme. */
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .theme-toggle .sun {
+      display: none;
+    }
+    :global(:root:not([data-theme])) .theme-toggle .moon {
+      display: block;
+    }
   }
 </style>

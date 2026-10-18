@@ -2,6 +2,7 @@
 import { iconPath } from "../lib/icons";
 import { asset } from "../lib/paths";
 import type { Portfolio } from "../lib/schema";
+import ExternalLink from "./ExternalLink.astro";
 import Icon from "./Icon.astro";
 
 interface Props {
@@ -36,9 +37,9 @@ const avatar =
         {(person.email || socials.length > 0) && <a class="button primary" href="#contact">Get in touch</a>}
         {
           person.resumeUrl ? (
-            <a class="button" href={person.resumeUrl}>Résumé</a>
+            <ExternalLink class="button" href={person.resumeUrl}>Résumé</ExternalLink>
           ) : (
-            <button class="button print-resume needs-js" type="button">Save as PDF résumé</button>
+            <button class="button needs-js" type="button" data-print-resume>Save as PDF résumé</button>
           )
         }
       </div>
@@ -46,16 +47,9 @@ const avatar =
         {
           socials.map((social) => (
             <li>
-              <a
-                class="icon-button"
-                href={social.url}
-                target="_blank"
-                rel="me noopener noreferrer"
-                aria-label={`${social.label} (opens in a new tab)`}
-                title={social.label}
-              >
+              <ExternalLink class="icon-button" href={social.url} me label={social.label}>
                 <Icon path={iconPath(social.icon)} size={18} />
-              </a>
+              </ExternalLink>
             </li>
           ))
         }
@@ -71,7 +65,7 @@ const avatar =
 </section>
 
 <script>
-  document.querySelector(".print-resume")?.addEventListener("click", () => window.print());
+  document.querySelector("[data-print-resume]")?.addEventListener("click", () => window.print());
 </script>
 
 <style>

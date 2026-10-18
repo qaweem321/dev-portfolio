@@ -28,6 +28,7 @@ function cleanEnv() {
 }
 
 const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 beforeAll(() => {
   // The real CLI in its own process, with the variables the Pages workflow sets.
@@ -81,9 +82,9 @@ describe("the built page", () => {
   });
 
   test("the email address is shown with a Copy button, and no email link", () => {
-    const email = portfolio.person.email ?? "";
-    expect(html).toMatch(new RegExp(`<span class="address"[^>]*>${email.replace(/[.+]/g, "\$&")}</span>`));
-    expect(html).toMatch(/<button class="button primary copy needs-js" type="button" data-email="[^"]+"[^>]*>\s*Copy\s*<\/button>/);
+    const email = escapeRegExp(portfolio.person.email ?? "");
+    expect(html).toMatch(new RegExp(`<input class="address"[^>]*readonly[^>]*value="${email}"`));
+    expect(html).toMatch(/<button class="button primary copy needs-js" type="button" data-copy[^>]*>\s*Copy\s*<\/button>/);
     expect(html).not.toMatch(/href="mailto:/);
   });
 

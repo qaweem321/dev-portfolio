@@ -1,0 +1,28 @@
+---
+// A link to another site: opens in a new tab, safely, and tells screen-reader users so.
+// Icon-only links pass `label`, which becomes the accessible name and the hover tooltip.
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends Omit<HTMLAttributes<"a">, "target" | "rel"> {
+  href: string;
+  // "me" marks your own profiles (rel="me"), which some sites use to verify you.
+  me?: boolean;
+  label?: string;
+}
+
+const { href, me = false, label, ...rest } = Astro.props;
+const rel = `${me ? "me " : ""}noopener noreferrer`;
+---
+
+{
+  label ? (
+    <a href={href} target="_blank" rel={rel} aria-label={`${label} (opens in a new tab)`} title={label} {...rest}>
+      <slot />
+    </a>
+  ) : (
+    <a href={href} target="_blank" rel={rel} {...rest}>
+      <slot />
+      <span class="visually-hidden"> (opens in a new tab)</span>
+    </a>
+  )
+}

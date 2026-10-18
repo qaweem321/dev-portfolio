@@ -5,30 +5,31 @@ import Section from "./Section.astro";
 interface Props {
   portfolio: Portfolio;
   index: number;
+  title: string;
 }
 
-const { portfolio, index } = Astro.props;
+const { portfolio, index, title } = Astro.props;
 ---
 
-<Section id="about" index={index} title="About">
+<Section id="about" index={index} title={title}>
   <div class="about">
     <div class="prose">
       {portfolio.person.about.map((paragraph) => <p>{paragraph}</p>)}
     </div>
     {
       portfolio.skills.length > 0 && (
-        <div class="skills" aria-label="Skills">
+        <ul class="skills" aria-label="Skills">
           {portfolio.skills.map((group) => (
-            <div class="group">
+            <li>
               <h3>{group.group}</h3>
-              <ul>
+              <ul class="items">
                 {group.items.map((item) => (
                   <li>{item}</li>
                 ))}
               </ul>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )
     }
   </div>
@@ -49,7 +50,9 @@ const { portfolio, index } = Astro.props;
   }
   .skills {
     display: grid;
+    align-content: start;
     gap: 1.5rem;
+    list-style: none;
   }
   h3 {
     margin-bottom: 0.6rem;
@@ -59,13 +62,13 @@ const { portfolio, index } = Astro.props;
     text-transform: uppercase;
     color: var(--muted);
   }
-  ul {
+  .items {
     display: flex;
     flex-wrap: wrap;
     gap: 0.45rem;
     list-style: none;
   }
-  li {
+  .items li {
     padding: 0.3rem 0.75rem;
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -87,15 +90,15 @@ const { portfolio, index } = Astro.props;
       font-size: inherit;
       color: black;
     }
-    ul {
+    .items {
       gap: 0;
     }
-    li {
+    .items li {
       padding: 0;
       border: 0;
       font-size: inherit;
     }
-    li:not(:last-child)::after {
+    .items li:not(:last-child)::after {
       content: ",\00a0";
     }
   }
