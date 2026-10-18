@@ -8,9 +8,10 @@ export function formatMonth(value: string) {
   return `${MONTHS[month - 1]} ${year}`;
 }
 
-// Tags ordered by how many projects use them, then alphabetically: the filter buttons.
+// Tags ordered by how many projects use them, then by plain character order (not the build
+// machine's locale, so every machine gives the same buttons): the filter buttons.
 export function tagsByUse(projects: readonly { tags: readonly string[] }[]) {
   const counts = new Map<string, number>();
   for (const project of projects) for (const tag of project.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
-  return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([tag]) => tag);
+  return [...counts].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([tag]) => tag);
 }

@@ -15,7 +15,7 @@
     "preview": "astro preview",
     "typecheck": "astro check",
     "test": "vitest run",
-    "check": "npm run typecheck && npm test && npm run build"
+    "check": "npm run typecheck && npm run build && npm test"
   },
   "dependencies": {
     "@dicebear/core": "9.4.3",

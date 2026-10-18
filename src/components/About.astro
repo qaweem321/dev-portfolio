@@ -4,14 +4,15 @@ import Section from "./Section.astro";
 
 interface Props {
   portfolio: Portfolio;
+  id: string;
   index: number;
   title: string;
 }
 
-const { portfolio, index, title } = Astro.props;
+const { portfolio, id, index, title } = Astro.props;
 ---
 
-<Section id="about" index={index} title={title}>
+<Section id={id} index={index} title={title}>
   <div class="about">
     <div class="prose">
       {portfolio.person.about.map((paragraph) => <p>{paragraph}</p>)}

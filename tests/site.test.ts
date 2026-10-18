@@ -49,6 +49,13 @@ const escapeHtml = (text: string) =>
   text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+const SOCIAL_HOSTS = [
+  "github.com", "gitlab.com", "linkedin.com", "x.com", "twitter.com", "instagram.com", "facebook.com",
+  "youtube.com", "dribbble.com", "behance.net", "medium.com", "bsky.app", "mastodon.social",
+  "codepen.io", "stackoverflow.com", "dev.to",
+];
+const PLACEHOLDER_HOME = new RegExp(`^https?://(www\\.)?(${SOCIAL_HOSTS.map(escapeRegExp).join("|")})/?(in/?)?$`, "i");
+
 // Holds for any config, so it runs on your site and on the sample.
 function generalChecks(page: () => string) {
   test("every in-page link points at an element that exists", () => {
@@ -64,7 +71,8 @@ function generalChecks(page: () => string) {
   test("no link leads to a placeholder page", () => {
     for (const link of all(page(), /href="(https?:[^"]+)"/g)) {
       expect(link, link).not.toMatch(/^https?:\/\/(www\.)?example\.(com|org|net)\b/);
-      expect(link, link).not.toMatch(/^https:\/\/github\.com\/?$/);
+      // A social site's home page instead of your profile.
+      expect(link, link).not.toMatch(PLACEHOLDER_HOME);
     }
   });
 
@@ -100,7 +108,7 @@ describe("your site", () => {
 });
 
 describe("the sample site", () => {
-  const portfolio = parsePortfolio(fixture);
+  const portfolio = parsePortfolio(fixture, "tests/fixtures/portfolio.ts");
   let outDir = "";
   let html = "";
   beforeAll(() => {
@@ -111,6 +119,10 @@ describe("the sample site", () => {
     });
     html = readPage(outDir);
   }, 120_000);
+
+  test("was built from the sample config, not src/config.ts", () => {
+    expect(html, "PORTFOLIO_CONFIG was ignored: check the plugin in astro.config.mjs").toContain(escapeHtml(portfolio.person.name));
+  });
 
   generalChecks(() => html);
 

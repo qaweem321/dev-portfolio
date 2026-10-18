@@ -7,18 +7,19 @@ import Section from "./Section.astro";
 
 interface Props {
   portfolio: Portfolio;
+  id: string;
   index: number;
   title: string;
 }
 
-const { portfolio, index, title } = Astro.props;
+const { portfolio, id, index, title } = Astro.props;
 const { person, socials } = portfolio;
 ---
 
-<Section id="contact" index={index} title={title} print={false}>
+<Section id={id} index={index} title={title} print={false}>
   <div class="contact card">
     <div>
-      <p class="lead">Have a role, a project or a question? I reply within two working days.</p>
+      <p class="lead">{person.contactNote}</p>
       {
         person.email && (
           <div class="email-row" data-email-row>

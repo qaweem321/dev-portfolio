@@ -53,7 +53,7 @@ npm run dev
 | Section | Fields |
 | --- | --- |
 | `site` | `title`, `description` (search results), `lang`, `image` (link previews), `templateNotice` |
-| `person` | `name`, `role`, `tagline`, `location`, `about` (paragraphs), `availability`, `avatar`, `email`, `resumeUrl` |
+| `person` | `name`, `role`, `tagline`, `location`, `about` (paragraphs), `availability`, `avatar`, `email`, `contactNote` (the line above it), `resumeUrl` |
 | `socials` | `label`, `url`, `icon` (any [Simple Icons](https://simpleicons.org) slug, such as `github` or `mastodon`) |
 | `skills` | groups of items |
 | `projects` | `title`, `description`, `tags`, `url`, `repo`, `year`, `featured` |
@@ -77,7 +77,7 @@ Good to know:
 | `npm run dev` | Local preview with live reload |
 | `npm run build` | Build the site into `dist/` |
 | `npm run preview` | Serve the built site |
-| `npm run check` | Type check, tests and build (what CI runs) |
+| `npm run check` | Type check, build and tests: the same checks as CI (which builds your site once; locally the tests build it again) |
 
 ## How it's tested
 

@@ -6,11 +6,12 @@ import Section from "./Section.astro";
 
 interface Props {
   portfolio: Portfolio;
+  id: string;
   index: number;
   title: string;
 }
 
-const { portfolio, index, title } = Astro.props;
+const { portfolio, id, index, title } = Astro.props;
 // Featured first, then newest.
 const projects = [...portfolio.projects].sort(
   (a, b) => Number(b.featured) - Number(a.featured) || (b.year ?? 0) - (a.year ?? 0),
@@ -18,7 +19,7 @@ const projects = [...portfolio.projects].sort(
 const tags = tagsByUse(projects).slice(0, 8);
 ---
 
-<Section id="projects" index={index} title={title}>
+<Section id={id} index={index} title={title}>
   {
     tags.length > 1 && (
       <div class="filters no-print" role="group" aria-label="Filter projects by technology" hidden data-filters>

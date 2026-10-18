@@ -29,7 +29,7 @@ const year = new Date().getUTCFullYear();
   <Header portfolio={portfolio} links={sections.map((s) => ({ href: `#${s.id}`, label: s.label }))} />
   <main id="main">
     <Hero portfolio={portfolio} />
-    {sections.map(({ component: Component, label }, i) => <Component portfolio={portfolio} index={i + 1} title={label} />)}
+    {sections.map(({ component: Component, id, label }, i) => <Component portfolio={portfolio} id={id} index={i + 1} title={label} />)}
   </main>
   <footer class="footer no-print">
     <div class="container">

@@ -33,14 +33,13 @@ const config: PortfolioInput = {
     // Prefer a photo? Put it in public/ and use: avatar: { src: "/me.jpg", alt: "Alex Morgan" }
     avatar: { seed: "Alex Morgan" },
     email: "alex.morgan@example.com",
+    contactNote: "Have a role, a project or a question? I reply within two working days.",
   },
 
   // `icon` is a Simple Icons slug (https://simpleicons.org), such as "github", "mastodon" or "rss".
-  // Unknown icons get a generic link icon. Use your own profile addresses here.
-  socials: [
-    { label: "GitHub", url: "https://github.com/qaweem321/dev-portfolio", icon: "github" },
-    { label: "LinkedIn", url: "https://www.linkedin.com/", icon: "linkedin" },
-  ],
+  // Unknown icons get a generic link icon. Use your own profile addresses here, for example
+  // { label: "LinkedIn", url: "https://www.linkedin.com/in/your-name", icon: "linkedin" }.
+  socials: [{ label: "GitHub", url: "https://github.com/qaweem321/dev-portfolio", icon: "github" }],
 
   skills: [
     { group: "Languages", items: ["TypeScript", "JavaScript", "SQL", "Python", "Go"] },

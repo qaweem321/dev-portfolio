@@ -48,6 +48,8 @@ export const portfolioSchema = z.strictObject({
     avatar,
     email: z.email("must be an email address").optional(),
     resumeUrl: url.optional(),
+    // The line above your email in the Contact section.
+    contactNote: text.default("Have a role, a project or a question? Get in touch."),
   }),
   socials: z.array(z.strictObject({ label: text, url, icon: text.optional() })).default([]),
   skills: z.array(z.strictObject({ group: text, items: z.array(text).min(1) })).default([]),
@@ -81,9 +83,10 @@ export type PortfolioInput = z.input<typeof portfolioSchema>;
 export type Portfolio = z.output<typeof portfolioSchema>;
 
 // Parses the config, or throws one error listing every problem as "projects.2.url: must be ...".
-export function parsePortfolio(input: unknown): Portfolio {
+// `file` names the config in that message.
+export function parsePortfolio(input: unknown, file = "src/config.ts"): Portfolio {
   const result = portfolioSchema.safeParse(input);
   if (result.success) return result.data;
   const problems = result.error.issues.map((issue) => `  - ${issue.path.join(".") || "config"}: ${issue.message}`);
-  throw new Error(`src/config.ts has ${problems.length} problem(s):\n${problems.join("\n")}`);
+  throw new Error(`${file} has ${problems.length} problem(s):\n${problems.join("\n")}`);
 }

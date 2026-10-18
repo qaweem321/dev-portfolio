@@ -15,7 +15,11 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : un
 const favicon = asset("favicon.svg");
 // Link previews need a PNG/JPG at a full address: the configured image, else a photo avatar.
 const previewImage = site.image ?? ("src" in person.avatar && !/\.svg$/i.test(person.avatar.src) ? person.avatar.src : undefined);
-const ogImage = previewImage && Astro.site ? new URL(asset(previewImage), Astro.site).href : undefined;
+const ogImage = !previewImage
+  ? undefined
+  : /^https?:\/\//.test(previewImage)
+    ? previewImage
+    : Astro.site && new URL(asset(previewImage), Astro.site).href;
 
 // schema.org Person: lets search engines show your name, role and profiles.
 const structuredData = {

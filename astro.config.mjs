@@ -11,7 +11,8 @@ function useConfigFile(file) {
     name: "portfolio-config",
     enforce: "pre",
     async resolveId(source, importer, options) {
-      if (!importer || !source.endsWith("config")) return null;
+      // Any import that could be src/config.ts ("../config", "./config.ts", "/src/config"...).
+      if (!importer || !/(^|\/)config(\.[cm]?[jt]s)?$/.test(source)) return null;
       const resolved = await this.resolve(source, importer, { ...options, skipSelf: true });
       return resolved?.id === real ? replacement : null;
     },

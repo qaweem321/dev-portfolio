@@ -54,11 +54,15 @@ describe("the config", () => {
         return (error as Error).message;
       }
     })();
-    expect(message).toMatch(/has 4 problem\(s\)/);
+    expect(message).toMatch(/^src\/config\.ts has 4 problem\(s\)/);
     expect(message).toMatch(/person\.email: must be an email address/);
     expect(message).toMatch(/projects\.2\.url: must be a full http\(s\):\/\/ address/);
     expect(message).toMatch(/experience\.0\.start: must look like "2024-03"/);
     expect(message).toMatch(/person\.name: can't be empty/);
+  });
+
+  test("the error names the config file it came from", () => {
+    expect(() => parsePortfolio({}, "tests/fixtures/portfolio.ts")).toThrow(/^tests\/fixtures\/portfolio\.ts has/);
   });
 
   test("a job can't end before it starts", () => {
