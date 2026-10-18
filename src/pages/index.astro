@@ -6,11 +6,8 @@ import ExternalLink from "../components/ExternalLink.astro";
 import Header from "../components/Header.astro";
 import Hero from "../components/Hero.astro";
 import Projects from "../components/Projects.astro";
-import config from "../config";
 import Base from "../layouts/Base.astro";
-import { parsePortfolio } from "../lib/schema";
-
-const portfolio = parsePortfolio(config);
+import { hasContact, portfolio } from "../lib/portfolio";
 
 // Sections with nothing in them are left out, and the rest are numbered in order.
 const sections = [
@@ -23,7 +20,7 @@ const sections = [
     component: Experience,
     show: portfolio.experience.length > 0 || portfolio.education.length > 0,
   },
-  { id: "contact", label: "Contact", component: Contact, show: Boolean(portfolio.person.email) || portfolio.socials.length > 0 },
+  { id: "contact", label: "Contact", component: Contact, show: hasContact(portfolio) },
 ].filter((section) => section.show);
 const year = new Date().getUTCFullYear();
 ---

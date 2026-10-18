@@ -1,6 +1,6 @@
 ---
-import { formatMonth, formatPeriod } from "../lib/format";
 import type { Portfolio } from "../lib/schema";
+import Period from "./Period.astro";
 import Section from "./Section.astro";
 
 interface Props {
@@ -23,8 +23,7 @@ const education = [...portfolio.education].sort((a, b) => b.start.localeCompare(
           jobs.map((job) => (
             <li class="entry">
               <div class="when">
-                <time datetime={job.start}>{formatMonth(job.start)}</time> –{" "}
-                {job.end ? <time datetime={job.end}>{formatMonth(job.end)}</time> : "Present"}
+                <Period start={job.start} end={job.end} />
               </div>
               <div class="what">
                 <h3>
@@ -52,7 +51,9 @@ const education = [...portfolio.education].sort((a, b) => b.start.localeCompare(
         <ol class="timeline">
           {education.map((item) => (
             <li class="entry">
-              <div class="when">{formatPeriod(item.start, item.end)}</div>
+              <div class="when">
+                <Period start={item.start} end={item.end} />
+              </div>
               <div class="what">
                 <h3>
                   {item.degree} <span class="at">· {item.school}</span>

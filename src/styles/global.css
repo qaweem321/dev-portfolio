@@ -27,6 +27,24 @@
   color-scheme: dark;
 }
 
+/* Browsers without light-dark() (Safari before 17.5, Chrome before 123) get the light theme.
+   A custom property can't fall back by being declared twice, hence this block. */
+@supports not (color: light-dark(#000, #fff)) {
+  :root {
+    color-scheme: light;
+    --bg: #fbfbfd;
+    --surface: #ffffff;
+    --surface-2: #f3f3f7;
+    --text: #16161d;
+    --muted: #5b5b6b;
+    --border: #e4e4ec;
+    --accent-text: color-mix(in oklab, var(--accent) 82%, black);
+    --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+    --ok: #16a34a;
+    --shadow: 0 1px 2px rgb(16 16 24 / 0.04), 0 8px 24px rgb(16 16 24 / 0.06);
+  }
+}
+
 *,
 *::before,
 *::after {

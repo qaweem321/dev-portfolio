@@ -1,0 +1,13 @@
+---
+// "Mar 2023 – Present" with machine-readable dates, for jobs and education alike.
+import { formatMonth } from "../lib/format";
+
+interface Props {
+  start: string;
+  end?: string;
+}
+
+const { start, end } = Astro.props;
+---
+
+<time datetime={start}>{formatMonth(start)}</time> – {end ? <time datetime={end}>{formatMonth(end)}</time> : "Present"}

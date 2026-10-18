@@ -90,6 +90,10 @@ const tags = tagsByUse(projects).slice(0, 8);
     gap: 0.5rem;
     margin-bottom: 1.75rem;
   }
+  /* display: flex above would otherwise beat the hidden attribute (shown again by the script). */
+  .filters[hidden] {
+    display: none;
+  }
   .filter {
     min-height: 2.5rem;
     padding: 0.45rem 0.95rem;

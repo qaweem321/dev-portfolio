@@ -81,11 +81,16 @@ Good to know:
 
 ## How it's tested
 
-- **The config rules:** valid and minimal configs pass; bad emails, URLs, dates, empty names,
-  `javascript:` links and jobs that end before they start are rejected with the field's name.
-- **The real build:** the tests run `astro build` under a GitHub Pages path and check the HTML:
-  every project and job is on the page, every `#link` has a target, ids are unique, images have
-  alt text, icon links have names, nothing prints `undefined`, and files load from the right path.
+- **Your edits don't break them.** The detailed tests use a fixed sample config in
+  [`tests/fixtures/`](tests/fixtures/portfolio.ts), so replacing the demo with yourself keeps CI and
+  the deploy green. Your own config gets the general checks below.
+- **The config rules:** valid and minimal configs pass; misspelled fields, bad emails, URLs, colors
+  and dates, empty names, `javascript:` links and jobs that end before they start are rejected with
+  the field's name.
+- **The real build:** your site and the sample are built with `astro build` and the HTML is checked:
+  every `#link` has a target, ids are unique, outside links open safely in a new tab, images have
+  alt text, icon links have names. For the sample also: every project, job and school is on the
+  page, nothing prints `undefined`, and files load from the GitHub Pages path.
 - **In a browser:** both themes, phone and desktop widths, the menu, filters, keyboard focus,
   print output and color contrast were checked by hand before release.
 

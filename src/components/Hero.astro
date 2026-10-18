@@ -1,6 +1,7 @@
 ---
 import { iconPath } from "../lib/icons";
 import { asset } from "../lib/paths";
+import { hasContact } from "../lib/portfolio";
 import type { Portfolio } from "../lib/schema";
 import ExternalLink from "./ExternalLink.astro";
 import Icon from "./Icon.astro";
@@ -9,7 +10,8 @@ interface Props {
   portfolio: Portfolio;
 }
 
-const { person, socials } = Astro.props.portfolio;
+const { portfolio } = Astro.props;
+const { person, socials } = portfolio;
 const avatar =
   "seed" in person.avatar
     ? { src: asset("avatar.svg"), alt: `Illustrated avatar of ${person.name}` }
@@ -34,7 +36,7 @@ const avatar =
       <p class="tagline">{person.tagline}</p>
       {person.location && <p class="location">{person.location}</p>}
       <div class="actions no-print">
-        {(person.email || socials.length > 0) && <a class="button primary" href="#contact">Get in touch</a>}
+        {hasContact(portfolio) && <a class="button primary" href="#contact">Get in touch</a>}
         {
           person.resumeUrl ? (
             <ExternalLink class="button" href={person.resumeUrl}>Résumé</ExternalLink>

@@ -1,17 +1,23 @@
 import { describe, expect, test } from "vitest";
 import config from "../src/config";
 import { parsePortfolio } from "../src/lib/schema";
+import fixture from "./fixtures/portfolio";
 
+// Changes are made to the fixed sample, never to your src/config.ts.
 const withChange = (change: (c: any) => void) => {
-  const copy = structuredClone(config) as any;
+  const copy = structuredClone(fixture) as any;
   change(copy);
   return copy;
 };
 
 describe("the config", () => {
-  test("the example config is valid", () => {
-    const portfolio = parsePortfolio(config);
-    expect(portfolio.person.name).toBe("Alex Morgan");
+  test("your config is valid", () => {
+    expect(() => parsePortfolio(config)).not.toThrow();
+  });
+
+  test("the sample config is valid and gets its defaults", () => {
+    const portfolio = parsePortfolio(fixture);
+    expect(portfolio.person.name).toBe("Sam O'Brien");
     expect(portfolio.projects.every((p) => typeof p.featured === "boolean")).toBe(true);
   });
 

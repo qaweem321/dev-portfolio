@@ -8,11 +8,6 @@ export function formatMonth(value: string) {
   return `${MONTHS[month - 1]} ${year}`;
 }
 
-// "2023-03", undefined -> "Mar 2023 – Present"
-export function formatPeriod(start: string, end?: string) {
-  return `${formatMonth(start)} – ${end ? formatMonth(end) : "Present"}`;
-}
-
 // Tags ordered by how many projects use them, then alphabetically: the filter buttons.
 export function tagsByUse(projects: readonly { tags: readonly string[] }[]) {
   const counts = new Map<string, number>();

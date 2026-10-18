@@ -1,21 +1,20 @@
-// Builds the real site (as GitHub Pages would, under /dev-portfolio/) and checks the HTML a
-// visitor gets: every section and project is there, links and anchors work, nothing leaks
-// "undefined" into the page.
+// Checks the HTML a visitor gets, from real `astro build` runs.
+// - Your site: general checks that hold for any config (links work, ids unique, every image has
+//   alt text...). With SITE_DIR set (CI and the deploy), it checks that already-built folder
+//   instead of building again.
+// - The sample site: tests/fixtures/portfolio.ts built as GitHub Pages would (under
+//   /dev-portfolio/), checked in detail. It never changes when you edit src/config.ts.
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import config from "../src/config";
 import { parsePortfolio } from "../src/lib/schema";
+import fixture from "./fixtures/portfolio";
 
-const portfolio = parsePortfolio(config);
 const root = fileURLToPath(new URL("..", import.meta.url));
-// Inside the project (.astro/ is gitignored): Astro moves files into outDir, which fails across
-// drives, so the system temp folder won't do on every machine.
-mkdirSync(join(root, ".astro"), { recursive: true });
-const outDir = mkdtempSync(join(root, ".astro", "test-build-"));
-let html = "";
+const tempDirs: string[] = [];
+afterAll(() => tempDirs.forEach((dir) => rmSync(dir, { recursive: true, force: true })));
 
 // Vitest puts Vite's own variables (BASE_URL=/, MODE, ...) in process.env; a child build would
 // inherit them and ignore the base path.
@@ -27,33 +26,100 @@ function cleanEnv() {
   return env;
 }
 
-const escapeHtml = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-beforeAll(() => {
-  // The real CLI in its own process, with the variables the Pages workflow sets.
+// The real CLI in its own process. The output goes inside the project (.astro/ is gitignored):
+// Astro moves files into outDir, which fails across drives, so the system temp folder won't do.
+function build(env: Record<string, string>) {
+  mkdirSync(join(root, ".astro"), { recursive: true });
+  const outDir = mkdtempSync(join(root, ".astro", "test-build-"));
+  tempDirs.push(outDir);
   const astro = join(root, "node_modules", "astro", "bin", "astro.mjs");
   const run = spawnSync(process.execPath, [astro, "build", "--outDir", outDir], {
     cwd: root,
-    env: { ...cleanEnv(), BASE_PATH: "/dev-portfolio/", SITE: "https://example.github.io", ASTRO_TELEMETRY_DISABLED: "1" },
+    env: { ...cleanEnv(), ASTRO_TELEMETRY_DISABLED: "1", ...env },
     encoding: "utf8",
   });
-  if (run.status !== 0) throw new Error(`astro build failed:
-${run.stdout}
-${run.stderr}`);
-  html = readFileSync(join(outDir, "index.html"), "utf8");
-}, 120_000);
+  if (run.status !== 0) throw new Error(`astro build failed:\n${run.stdout}\n${run.stderr}`);
+  return outDir;
+}
 
-afterAll(() => rmSync(outDir, { recursive: true, force: true }));
+const readPage = (dir: string) => readFileSync(join(dir, "index.html"), "utf8");
+const all = (html: string, pattern: RegExp) => [...html.matchAll(pattern)].map((m) => m[1]);
+// How Astro writes text into HTML.
+const escapeHtml = (text: string) =>
+  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const all = (pattern: RegExp) => [...html.matchAll(pattern)].map((m) => m[1]);
+// Holds for any config, so it runs on your site and on the sample.
+function generalChecks(page: () => string) {
+  test("every in-page link points at an element that exists", () => {
+    const ids = new Set(all(page(), /\sid="([^"]+)"/g));
+    for (const target of all(page(), /href="#([^"]*)"/g)) expect(ids.has(target), `#${target}`).toBe(true);
+  });
 
-describe("the built page", () => {
-  test("shows the person, every project and every job", () => {
+  test("ids are unique", () => {
+    const ids = all(page(), /\sid="([^"]+)"/g);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  test("no link leads to a placeholder page", () => {
+    for (const link of all(page(), /href="(https?:[^"]+)"/g)) {
+      expect(link, link).not.toMatch(/^https?:\/\/(www\.)?example\.(com|org|net)\b/);
+      expect(link, link).not.toMatch(/^https:\/\/github\.com\/?$/);
+    }
+  });
+
+  test("every link to another site opens in a new tab, safely, and says so", () => {
+    for (const link of page().match(/<a\b[^>]*href="https?:[^"]*"[^>]*>[\s\S]*?<\/a>/g) ?? []) {
+      expect(link, link).toMatch(/target="_blank"/);
+      expect(link, link).toMatch(/rel="[^"]*noopener[^"]*"/);
+      expect(link, link).toMatch(/opens in a new tab/);
+    }
+  });
+
+  test("images have alt text, icon-only links have names, buttons have types", () => {
+    for (const img of page().match(/<img\b[^>]*>/g) ?? []) expect(img).toMatch(/\salt="[^"]+"/);
+    for (const link of page().match(/<a\b[^>]*class="icon-button"[^>]*>/g) ?? []) expect(link).toMatch(/aria-label="[^"]+"/);
+    for (const button of page().match(/<button\b[^>]*>/g) ?? []) expect(button).toMatch(/type="button"/);
+  });
+
+  test("structured data is valid JSON", () => {
+    const json = page().match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1];
+    expect(() => JSON.parse(json ?? "")).not.toThrow();
+  });
+}
+
+describe("your site", () => {
+  let html = "";
+  beforeAll(() => {
+    const dir = process.env.SITE_DIR ? resolve(root, process.env.SITE_DIR) : build({});
+    if (!existsSync(join(dir, "index.html"))) throw new Error(`No index.html in ${dir}: run npm run build first.`);
+    html = readPage(dir);
+  }, 120_000);
+
+  generalChecks(() => html);
+});
+
+describe("the sample site", () => {
+  const portfolio = parsePortfolio(fixture);
+  let outDir = "";
+  let html = "";
+  beforeAll(() => {
+    outDir = build({
+      PORTFOLIO_CONFIG: "tests/fixtures/portfolio.ts",
+      BASE_PATH: "/dev-portfolio/",
+      SITE: "https://example.github.io",
+    });
+    html = readPage(outDir);
+  }, 120_000);
+
+  generalChecks(() => html);
+
+  test("shows the person, every project, job and school", () => {
     expect(html).toMatch(/<h1 id="hero-title"/);
-    expect(html).toContain(portfolio.person.name);
+    expect(html).toContain(escapeHtml(portfolio.person.name));
     for (const project of portfolio.projects) expect(html, project.title).toContain(escapeHtml(project.title));
     for (const job of portfolio.experience) expect(html, job.company).toContain(escapeHtml(job.company));
+    for (const item of portfolio.education) expect(html, item.school).toContain(escapeHtml(item.school));
   });
 
   test("never prints undefined, null or [object Object]", () => {
@@ -61,20 +127,8 @@ describe("the built page", () => {
     expect(visible).not.toMatch(/\bundefined\b|\bnull\b|\[object Object\]|\bNaN\b/);
   });
 
-  test("every in-page link points at an element that exists", () => {
-    const ids = new Set(all(/\sid="([^"]+)"/g));
-    const targets = all(/href="#([^"]*)"/g);
-    expect(targets.length).toBeGreaterThan(4);
-    for (const target of targets) expect(ids.has(target), `#${target}`).toBe(true);
-  });
-
-  test("no link leads to a placeholder page", () => {
-    const links = all(/href="(https?:[^"]+)"/g);
-    expect(links.length).toBeGreaterThan(0);
-    for (const link of links) {
-      expect(link, link).not.toMatch(/^https?:\/\/(www\.)?example\.(com|org|net)\b/);
-      expect(link, link).not.toMatch(/^https:\/\/github\.com\/?$/);
-    }
+  test("the menu links to every section", () => {
+    expect(all(html, /<a href="#([a-z]+)"[^>]*>/g)).toEqual(expect.arrayContaining(["about", "projects", "experience", "contact"]));
   });
 
   test("Get in touch goes to the contact section", () => {
@@ -88,19 +142,10 @@ describe("the built page", () => {
     expect(html).not.toMatch(/href="mailto:/);
   });
 
-  test("every link to another site opens in a new tab, safely, and says so", () => {
-    const external = html.match(/<a\b[^>]*href="https?:[^"]*"[^>]*>[\s\S]*?<\/a>/g) ?? [];
-    expect(external.length).toBeGreaterThan(3);
-    for (const link of external) {
-      expect(link, link).toMatch(/target="_blank"/);
-      expect(link, link).toMatch(/rel="[^"]*noopener[^"]*"/);
-      expect(link, link).toMatch(/opens in a new tab/);
-    }
-  });
-
-  test("ids are unique", () => {
-    const ids = all(/\sid="([^"]+)"/g);
-    expect(new Set(ids).size).toBe(ids.length);
+  test("project filters are hidden until JavaScript shows them", () => {
+    expect(html).toMatch(/<div class="filters[^"]*"[^>]*\shidden[\s>]/);
+    const css = readFileSync(join(outDir, html.match(/href="\/dev-portfolio\/(_astro\/[^"]+\.css)"/)?.[1] ?? ""), "utf8");
+    expect(/\.filters(\[data-astro-cid-\w+\])?\[hidden\]\{display:none/.test(css), ".filters[hidden] rule").toBe(true);
   });
 
   test("files are served under the GitHub Pages base path", () => {
@@ -117,15 +162,9 @@ describe("the built page", () => {
     expect(data.sameAs).toEqual(portfolio.socials.map((s) => s.url));
   });
 
-  test("images have alt text, icon-only links have names, buttons have types", () => {
-    for (const img of html.match(/<img\b[^>]*>/g) ?? []) expect(img).toMatch(/\salt="[^"]+"/);
-    for (const link of html.match(/<a\b[^>]*class="icon-button"[^>]*>/g) ?? []) expect(link).toMatch(/aria-label="[^"]+"/);
-    for (const button of html.match(/<button\b[^>]*>/g) ?? []) expect(button).toMatch(/type="button"/);
-  });
-
   test("dates are written out, never as 03/2023", () => {
-    expect(html).toContain("Mar 2023");
-    expect(html).toContain("Present");
+    expect(html).toMatch(/<time datetime="2023-03">Mar 2023<\/time> – Present/);
+    expect(html).toMatch(/<time datetime="2016-09">Sep 2016<\/time> – <time datetime="2020-05">May 2020<\/time>/);
     expect(html).not.toMatch(/\b\d{1,2}\/\d{4}\b/);
   });
 });
