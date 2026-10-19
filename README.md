@@ -48,7 +48,7 @@ Morgan isn't a real person).
 To preview on your computer first (Node.js 22.12 or newer):
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
