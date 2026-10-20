@@ -1,6 +1,5 @@
 {
   "name": "dev-portfolio",
-  "version": "1.0.0",
   "private": true,
   "description": "A fast, accessible developer portfolio you fill in from one file. Dark and light themes, prints as a résumé, deploys to GitHub Pages.",
   "license": "MIT",
